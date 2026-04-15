@@ -725,6 +725,52 @@
                 font-size: 40px;
             }
         }
+
+        /* BOTÃO MAIS AGRESSIVO */
+.btn-cta {
+    background: linear-gradient(135deg, #FF4721, #ff6a00);
+    box-shadow: 0 0 20px rgba(255, 71, 33, 0.5);
+    animation: pulse 1.8s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* VITRINE */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+}
+
+.product-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: 16px;
+    overflow: hidden;
+    text-decoration: none;
+    color: #FFF;
+    transition: 0.4s;
+}
+
+.product-card img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+}
+
+.product-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--brand-blue);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.product-info {
+    padding: 16px;
+}
     </style>
 </head>
 
@@ -770,9 +816,9 @@
                 através das plataformas mais seguras do Brasil.
             </p>
             <div class="hero-actions">
-                <a href="#lojas" class="btn btn-primary">
-                    Acessar Lojas <i data-lucide="arrow-right" size="20"></i>
-                </a>
+<a href="https://shopee.com.br/shop/1534868702" target="_blank" class="btn btn-primary btn-cta">
+    🔥 COMPRAR NA SHOPEE AGORA <i data-lucide="arrow-right" size="20"></i>
+</a>
                 <a href="#categorias" class="btn btn-outline">
                     Explorar Nichos
                 </a>
@@ -789,9 +835,6 @@
                 <a href="https://shopee.com.br/shop/1534868702" target="_blank" rel="noopener noreferrer"
                     class="market-logo shopee">
                     <i data-lucide="shopping-bag" size="40"></i> SHOPEE
-                </a>
-                <a href="#" class="market-logo ml">
-                    <i data-lucide="package" size="40"></i> MERCADO LIVRE
                 </a>
             </div>
         </div>
@@ -867,6 +910,41 @@
     </section>
 
     <!-- SOBRE NÓS -->
+
+    <!-- VITRINE DE PRODUTOS -->
+    <section class="section-padding">
+        <div class="container">
+            <div class="section-head reveal">
+                <h2 class="text-gradient">PRODUTOS <span class="text-accent">EM DESTAQUE</span></h2>
+                <p>Os mais vendidos da Nukron. Clique e compre direto na Shopee.</p>
+            </div>
+    
+            <div class="product-grid">
+    
+                <a href="LINK_SHOPEE" target="_blank" class="product-card reveal">
+                    <img src="IMG_URL">
+                    <div class="product-info">
+                        <h3>Nome do Produto</h3>
+                    </div>
+                </a>
+    
+                <a href="LINK_SHOPEE" target="_blank" class="product-card reveal delay-1">
+                    <img src="IMG_URL">
+                    <div class="product-info">
+                        <h3>Nome do Produto</h3>
+                    </div>
+                </a>
+    
+                <a href="LINK_SHOPEE" target="_blank" class="product-card reveal delay-2">
+                    <img src="IMG_URL">
+                    <div class="product-info">
+                        <h3>Nome do Produto</h3>
+                    </div>
+                </a>
+    
+            </div>
+        </div>
+    </section>
     <section id="sobre" class="about">
         <div class="container about-grid">
             <div class="about-image reveal">
