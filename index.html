@@ -672,60 +672,6 @@
             font-size: 0.9rem;
         }
 
-        /* RESPONSIVE */
-        @media (max-width: 992px) {
-            .bento-grid {
-                grid-template-columns: 1fr 1fr;
-                grid-template-rows: auto;
-            }
-
-            .bento-large {
-                grid-column: span 2;
-                grid-row: span 1;
-                height: 300px;
-            }
-
-            .bento-wide {
-                grid-column: span 2;
-                height: 250px;
-            }
-
-            .about-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .about-image {
-                height: 400px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-
-            .hero-title {
-                font-size: 70px;
-            }
-
-            .bento-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .bento-large,
-            .bento-wide {
-                grid-column: span 1;
-            }
-
-            .cta-box {
-                padding: 60px 24px;
-            }
-
-            .cta-box h2 {
-                font-size: 40px;
-            }
-        }
-
         /* WHATSAPP FLOAT */
         .whatsapp-float {
             position: fixed;
@@ -983,9 +929,17 @@
             background: none;
             border: 1px solid var(--border-light);
             border-radius: 8px;
-            padding: 8px 12px;
+            padding: 9px 11px;
             cursor: pointer;
             color: #fff;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(26, 107, 255, 0.4);
         }
 
         .mobile-nav {
@@ -996,12 +950,13 @@
             right: 0;
             bottom: 0;
             background: rgba(3, 4, 7, 0.98);
-            backdrop-filter: blur(20px);
-            z-index: 999;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            z-index: 9998;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 40px;
+            gap: 36px;
         }
 
         .mobile-nav.open {
@@ -1010,28 +965,44 @@
 
         .mobile-nav a {
             font-family: 'Barlow Condensed', sans-serif;
-            font-size: 40px;
+            font-size: 42px;
             font-weight: 900;
-            color: #fff;
+            color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            transition: color 0.3s;
+            letter-spacing: 3px;
+            transition: color 0.25s, transform 0.25s;
         }
 
         .mobile-nav a:hover {
-            color: var(--brand-blue);
+            color: #fff;
+            transform: translateX(4px);
+        }
+
+        .mobile-nav .btn {
+            margin-top: 8px;
+            font-size: 1rem;
+            padding: 14px 40px;
         }
 
         .mobile-nav-close {
             position: absolute;
-            top: 24px;
-            right: 24px;
-            background: none;
-            border: none;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
             color: #fff;
             cursor: pointer;
             padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .mobile-nav-close:hover {
+            background: rgba(255, 255, 255, 0.1);
         }
 
         /* PRODUCT CARD MELHORADO */
@@ -1069,10 +1040,55 @@
 
         /* RESPONSIVE MELHORIAS */
         @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
             .menu-toggle {
                 display: flex;
+            }
+
+            .hero-title {
+                font-size: clamp(52px, 14vw, 80px);
+            }
+
+            .hero {
+                padding-top: 100px;
+                text-align: center;
+            }
+
+            .hero-desc {
+                font-size: 1rem;
+                padding: 0 8px;
+            }
+
+            .hero-actions {
+                flex-direction: column;
                 align-items: center;
-                gap: 6px;
+                gap: 12px;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+                max-width: 340px;
+                justify-content: center;
+            }
+
+            .trust-seals {
+                gap: 14px;
+            }
+
+            .section-head h2 {
+                font-size: 38px;
+            }
+
+            .bento-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .bento-large,
+            .bento-wide {
+                grid-column: span 1;
             }
 
             .reviews-grid {
@@ -1088,13 +1104,95 @@
             }
 
             .social-proof-bar {
-                gap: 32px;
+                gap: 24px;
+                padding: 32px 0;
+            }
+
+            .proof-number {
+                font-size: 34px;
+            }
+
+            .about-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .about-image {
+                height: 280px;
+            }
+
+            .about-content h2 {
+                font-size: 36px;
+            }
+
+            .stats-wrap {
+                justify-content: center;
+            }
+
+            .cta-box {
+                padding: 60px 20px;
+            }
+
+            .cta-box h2 {
+                font-size: 36px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: clamp(44px, 13vw, 64px);
+            }
+
+            .social-proof-bar {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                padding: 24px 16px;
+            }
+
+            .trust-seals {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .trust-seal {
+                font-size: 0.72rem;
+            }
+
+            .badge {
+                font-size: 0.72rem;
+                padding: 5px 12px;
             }
         }
 
         @media (max-width: 992px) {
             .reviews-grid {
                 grid-template-columns: 1fr 1fr;
+            }
+
+            .bento-grid {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: auto;
+            }
+
+            .bento-large {
+                grid-column: span 2;
+                grid-row: span 1;
+                height: 300px;
+            }
+
+            .bento-wide {
+                grid-column: span 2;
+                height: 250px;
+            }
+
+            .about-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .about-image {
+                height: 400px;
             }
         }
 
@@ -1180,16 +1278,25 @@
                 <li><a href="#sobre">Nossa Visão</a></li>
                 <li><a href="#faq">FAQ</a></li>
             </ul>
-            <button class="menu-toggle" id="menuToggle">
-                <i data-lucide="menu" size="20"></i> Menu
+            <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <line x1="3" y1="12" x2="21" y2="12" />
+                    <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
             </button>
         </div>
     </nav>
 
     <!-- MOBILE NAV -->
     <div class="mobile-nav" id="mobileNav">
-        <button class="mobile-nav-close" id="mobileNavClose">
-            <i data-lucide="x" size="32"></i>
+        <button class="mobile-nav-close" id="mobileNavClose" aria-label="Fechar menu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
         </button>
         <a href="#lojas" class="mobile-link">Lojas Oficiais</a>
         <a href="#categorias" class="mobile-link">Categorias</a>
@@ -1379,15 +1486,15 @@
 
                 <a href="LINK_SHOPEE" target="_blank" class="product-card reveal">
                     <span class="product-badge-sold">🔥 Mais Vendido</span>
-                    <img src="IMG_URL" alt="Produto em destaque Nukron">
+                    <img src="./assets/rolo.jpg" alt="Produto em destaque Nukron">
                     <div class="product-info">
-                        <h3>Nome do Produto</h3>
+                        <h3>Rolo de tirar pelos e poeira de roupa, lavavél</h3>
                         <div class="product-stars">★★★★★ <span
                                 style="color:var(--text-secondary);font-size:0.75rem;">(4.9)</span></div>
-                        <div class="product-price">R$ 00,00</div>
+                        <div class="product-price">R$ 19,90</div>
                     </div>
                 </a>
-
+                <!-- 
                 <a href="LINK_SHOPEE" target="_blank" class="product-card reveal delay-1">
                     <img src="IMG_URL" alt="Produto Nukron">
                     <div class="product-info">
@@ -1406,7 +1513,7 @@
                                 style="color:var(--text-secondary);font-size:0.75rem;">(4.9)</span></div>
                         <div class="product-price">R$ 00,00</div>
                     </div>
-                </a>
+                </a> -->
 
             </div>
         </div>
