@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Painel da Loja</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* ===================== CONFIG ===================== */
+        /* Se precisar trocar as chaves, procure por "SUPABASE CONFIG" abaixo */
+
+        :root {
+            --bg: #f7f7f5;
+            --card: #ffffff;
+            --border: #e5e5e0;
+            --text: #1a1a18;
+            --muted: #888880;
+            --ml-bg: #fffbe0;
+            --ml-c: #7a6c00;
+            --ml-b: #ffe507;
+            --sh-bg: #ee4d2d;
+            --sh-c: #fff;
+            --green: #16a34a;
+            --red: #dc2626;
+            --blue: #2563eb;
+            --radius: 14px;
+            --shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-size: 15px;
+            min-height: 100vh
+        }
+
+        /* NAV */
+        nav {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 28px;
+            height: 60px;
+            gap: 6px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow)
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-right: 28px
+        }
+
+        .tab {
+            padding: 8px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--muted);
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-family: inherit;
+            font-weight: 500;
+            transition: all .15s
+        }
+
+        .tab:hover {
+            color: var(--text);
+            background: var(--bg)
+        }
+
+        .tab.active {
+            color: var(--text);
+            background: var(--bg);
+            font-weight: 700
+        }
+
+        .nav-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            color: var(--muted)
+        }
+
+        .sync-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            display: inline-block;
+            animation: pulse 2s infinite
+        }
+
+        .sync-dot.err {
+            background: var(--red);
+            animation: none
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .4
+            }
+        }
+
+        /* PAGES */
+        .page {
+            display: none;
+            padding: 28px;
+            max-width: 1100px;
+            margin: 0 auto
+        }
+
+        .page.active {
+            display: block
+        }
+
+        /* SECTION HEADER */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -.3px
+        }
+
+        /* CARD */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px;
+            box-shadow: var(--shadow)
+        }
+
+        .card-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--muted);
+            margin-bottom: 14px
+        }
+
+        /* KPI */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+            gap: 14px;
+            margin-bottom: 22px
+        }
+
+        .kpi {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 18px;
+            box-shadow: var(--shadow)
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: var(--muted);
+            margin-bottom: 8px
+        }
+
+        .kpi-value {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -.8px
+        }
+
+        .kpi-sub {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 4px
+        }
+
+        .green {
+            color: var(--green)
+        }
+
+        .red {
+            color: var(--red)
+        }
+
+        /* FORM */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--muted);
+            margin-bottom: 6px
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg);
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--text);
+            transition: border-color .15s
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--text)
+        }
+
+        /* BUTTONS */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 10px 22px;
+            border-radius: 9px;
+            border: none;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .15s
+        }
+
+        .btn-primary {
+            background: var(--text);
+            color: #fff
+        }
+
+        .btn-primary:hover {
+            background: #333
+        }
+
+        .btn-primary:disabled {
+            background: #999;
+            cursor: not-allowed
+        }
+
+        .btn-ghost {
+            background: var(--bg);
+            border: 1.5px solid var(--border);
+            color: var(--text)
+        }
+
+        .btn-ghost:hover {
+            background: #ededea
+        }
+
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 12px
+        }
+
+        /* PLATFORM */
+        .plat {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            border-radius: 6px;
+            padding: 3px 10px;
+            font-size: 12px;
+            font-weight: 700
+        }
+
+        .plat.ml {
+            background: var(--ml-bg);
+            color: var(--ml-c);
+            border: 1px solid var(--ml-b)
+        }
+
+        .plat.sh {
+            background: var(--sh-bg);
+            color: var(--sh-c)
+        }
+
+        /* TABLE */
+        .table-wrap {
+            overflow-x: auto
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        th {
+            text-align: left;
+            padding: 9px 14px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--muted);
+            border-bottom: 1.5px solid var(--border);
+            font-weight: 700
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #f0f0ec;
+            vertical-align: middle;
+            font-size: 14px
+        }
+
+        tr:last-child td {
+            border-bottom: none
+        }
+
+        tr:hover td {
+            background: #fafaf8
+        }
+
+        .del-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #ccc;
+            font-size: 16px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all .15s
+        }
+
+        .del-btn:hover {
+            color: var(--red);
+            background: #fee2e2
+        }
+
+        /* CHARTS */
+        .charts-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px
+        }
+
+        @media(max-width:750px) {
+            .charts-row {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .chart-wrap {
+            position: relative;
+            width: 100%
+        }
+
+        /* PILLS */
+        .pills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+
+        .pill {
+            padding: 6px 14px;
+            border-radius: 99px;
+            border: 1.5px solid var(--border);
+            background: var(--card);
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .15s
+        }
+
+        .pill.active {
+            background: var(--text);
+            border-color: var(--text);
+            color: #fff
+        }
+
+        /* PLATFORM SELECT */
+        .plat-select {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 0
+        }
+
+        .plat-opt {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+            background: var(--bg);
+            cursor: pointer;
+            text-align: center;
+            font-weight: 700;
+            font-size: 13px;
+            transition: all .15s
+        }
+
+        .plat-opt.ml.selected {
+            border-color: var(--ml-b);
+            background: var(--ml-bg);
+            color: var(--ml-c)
+        }
+
+        .plat-opt.sh.selected {
+            border-color: var(--sh-bg);
+            background: var(--sh-bg);
+            color: #fff
+        }
+
+        /* CALC */
+        .calc-result {
+            background: var(--bg);
+            border-radius: 10px;
+            padding: 18px;
+            margin-top: 18px
+        }
+
+        .calc-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 7px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px
+        }
+
+        .calc-row:last-child {
+            border-bottom: none
+        }
+
+        .calc-row span:last-child {
+            font-weight: 600
+        }
+
+        /* PROD LIST */
+        .prod-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px
+        }
+
+        .prod-item {
+            background: var(--bg);
+            border-radius: 10px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px
+        }
+
+        /* EMPTY */
+        .empty {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--muted)
+        }
+
+        .empty-icon {
+            font-size: 40px;
+            margin-bottom: 12px
+        }
+
+        /* LOADING */
+        .loading {
+            text-align: center;
+            padding: 32px;
+            color: var(--muted);
+            font-size: 14px
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-top-color: var(--text);
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--text);
+            color: #fff;
+            padding: 14px 22px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: all .25s;
+            z-index: 999;
+            pointer-events: none;
+            max-width: 320px
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0)
+        }
+
+        .toast.err {
+            background: var(--red)
+        }
+
+        /* TIP */
+        .tip {
+            background: #fffbe0;
+            border: 1px solid #ffe507;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #7a6c00;
+            margin-bottom: 16px
+        }
+
+        @media(max-width:600px) {
+            .kpi-value {
+                font-size: 20px
+            }
+
+            nav {
+                padding: 0 14px
+            }
+
+            .page {
+                padding: 16px
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <div class="logo">📦 Minha Loja</div>
+        <button class="tab active" onclick="showPage('dashboard',this)">Resumo</button>
+        <button class="tab" onclick="showPage('vendas',this)">Lançar Venda</button>
+        <button class="tab" onclick="showPage('precificacao',this)">Precificação</button>
+        <button class="tab" onclick="showPage('produtos',this)">Produtos</button>
+        <div class="nav-right">
+            <span id="syncStatus"><span class="sync-dot" id="syncDot"></span> Conectado</span>
+            <span id="navDate" style="color:var(--muted)"></span>
+        </div>
+    </nav>
+
+    <div id="toast" class="toast"></div>
+
+    <!-- ===== RESUMO ===== -->
+    <div class="page active" id="page-dashboard">
+        <div class="section-header">
+            <div class="section-title">Resumo</div>
+            <div class="pills">
+                <div class="pill active" onclick="setPeriod('hoje',this)">Hoje</div>
+                <div class="pill" onclick="setPeriod('semana',this)">Esta semana</div>
+                <div class="pill" onclick="setPeriod('mes',this)">Este mês</div>
+                <div class="pill" onclick="setPeriod('tudo',this)">Tudo</div>
+            </div>
+        </div>
+        <div class="kpi-grid">
+            <div class="kpi">
+                <div class="kpi-label">💰 Receita</div>
+                <div class="kpi-value green" id="kReceit">—</div>
+                <div class="kpi-sub" id="kReceitSub"></div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">📦 Vendas</div>
+                <div class="kpi-value" id="kVendas">—</div>
+                <div class="kpi-sub" id="kVendasSub"></div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">🎯 Ticket Médio</div>
+                <div class="kpi-value" id="kTicket">—</div>
+                <div class="kpi-sub">por pedido</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">⭐ Mercado Livre</div>
+                <div class="kpi-value" id="kML">—</div>
+                <div class="kpi-sub" id="kMLsub"></div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">🛒 Shopee</div>
+                <div class="kpi-value" id="kSH">—</div>
+                <div class="kpi-sub" id="kSHsub"></div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">📊 Itens Vendidos</div>
+                <div class="kpi-value" id="kItens">—</div>
+                <div class="kpi-sub">unidades</div>
+            </div>
+        </div>
+        <div class="charts-row">
+            <div class="card">
+                <div class="card-title">Receita por dia — últimos 14 dias</div>
+                <div class="chart-wrap" style="height:210px"><canvas id="chartDays" role="img"
+                        aria-label="Receita por dia"></canvas></div>
+            </div>
+            <div class="card">
+                <div class="card-title">ML vs Shopee</div>
+                <div class="chart-wrap" style="height:160px"><canvas id="chartPlat" role="img"
+                        aria-label="Receita por plataforma"></canvas></div>
+                <div id="platLegend" style="margin-top:12px;font-size:13px;display:flex;flex-direction:column;gap:6px">
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">Últimas vendas</div>
+            <div id="recentContent">
+                <div class="loading"><span class="spinner"></span>Carregando...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== LANÇAR VENDA ===== -->
+    <div class="page" id="page-vendas">
+        <div class="section-header">
+            <div class="section-title">Lançar Venda</div>
+        </div>
+        <div class="tip">💡 Sempre que fizer uma venda no ML ou Shopee, anote aqui. Os dados ficam salvos na nuvem e
+            aparecem em todos os seus dispositivos.</div>
+        <div class="card" style="margin-bottom:20px">
+            <div class="card-title">Nova venda</div>
+            <div style="margin-bottom:14px">
+                <label>Plataforma</label>
+                <div class="plat-select">
+                    <div class="plat-opt ml selected" id="optML" onclick="selectPlat('ml')">⭐ Mercado Livre</div>
+                    <div class="plat-opt sh" id="optSH" onclick="selectPlat('sh')">🛒 Shopee</div>
+                </div>
+            </div>
+            <div class="form-grid" style="margin-bottom:14px">
+                <div><label>Data da venda</label><input type="date" id="inData"></div>
+                <div><label>Produto vendido</label><input type="text" id="inProd" placeholder="Ex: Headphone Bluetooth"
+                        list="prodSuggestions"><datalist id="prodSuggestions"></datalist></div>
+                <div><label>Quantidade</label><input type="number" id="inQtd" value="1" min="1"
+                        oninput="updateFormTotal()"></div>
+                <div><label>Valor unitário (R$)</label><input type="number" id="inValor" placeholder="Ex: 89.90"
+                        step="0.01" min="0" oninput="updateFormTotal()"></div>
+            </div>
+            <div style="margin-bottom:18px"><label>Observação (opcional)</label><input type="text" id="inObs"
+                    placeholder="Ex: frete grátis, devolvido..."></div>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                <button class="btn btn-primary" id="btnSave" onclick="addSale()">✓ Salvar Venda</button>
+                <span id="formTotal" style="font-size:15px;color:var(--muted)"></span>
+            </div>
+        </div>
+        <div class="card">
+            <div
+                style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+                <div class="card-title" style="margin-bottom:0">Histórico</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                    <input type="text" id="searchSale" placeholder="Buscar..."
+                        style="width:180px;padding:7px 12px;font-size:13px" oninput="renderHistory()">
+                    <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇ CSV</button>
+                </div>
+            </div>
+            <div id="histContent">
+                <div class="loading"><span class="spinner"></span>Carregando...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PRECIFICAÇÃO ===== -->
+    <div class="page" id="page-precificacao">
+        <div class="section-header">
+            <div class="section-title">Calculadora de Preço</div>
+        </div>
+        <div class="tip">💡 Informe o custo e o lucro que quer. A calculadora desconta as taxas das plataformas e mostra
+            o preço final a cobrar.</div>
+        <div class="card">
+            <div class="card-title">Dados do produto</div>
+            <div class="form-grid" style="margin-bottom:16px">
+                <div><label>Custo do produto (R$)</label><input type="number" id="cCusto" placeholder="Ex: 40.00"
+                        step="0.01" min="0" oninput="calcPrice()"></div>
+                <div><label>Embalagem (R$)</label><input type="number" id="cEmbal" value="0" step="0.01" min="0"
+                        oninput="calcPrice()"></div>
+                <div><label>Frete que você paga (R$)</label><input type="number" id="cFrete" value="0" step="0.01"
+                        min="0" oninput="calcPrice()"></div>
+                <div><label>Lucro desejado (%)</label><input type="number" id="cLucro" value="30" step="1" min="0"
+                        oninput="calcPrice()"></div>
+            </div>
+            <div class="card-title">Plataforma</div>
+            <div class="form-grid" style="margin-bottom:16px">
+                <div><label>Plataforma</label>
+                    <select id="cPlat" onchange="updateFees()">
+                        <option value="ml_classico">Mercado Livre — Clássico (16%)</option>
+                        <option value="ml_premium">Mercado Livre — Premium (19%)</option>
+                        <option value="sh">Shopee (20%)</option>
+                        <option value="custom">Personalizado</option>
+                    </select>
+                </div>
+                <div><label>Taxa da plataforma (%)</label><input type="number" id="cTaxa" value="16" step="0.1" min="0"
+                        max="100" oninput="calcPrice()"></div>
+                <div><label>Imposto / IR (%)</label><input type="number" id="cImposto" value="0" step="0.1" min="0"
+                        oninput="calcPrice()"></div>
+                <div><label>Outros custos (R$)</label><input type="number" id="cOutros" value="0" step="0.01" min="0"
+                        oninput="calcPrice()"></div>
+            </div>
+            <div class="calc-result" id="calcResult">
+                <div style="color:var(--muted);font-size:14px">Preencha os campos acima para ver o resultado.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PRODUTOS ===== -->
+    <div class="page" id="page-produtos">
+        <div class="section-header">
+            <div class="section-title">Meus Produtos</div>
+            <button class="btn btn-primary" onclick="document.getElementById('addProdForm').style.display='block'">+
+                Adicionar</button>
+        </div>
+        <div class="card" id="addProdForm" style="display:none;margin-bottom:20px">
+            <div class="card-title">Novo produto</div>
+            <div class="form-grid" style="margin-bottom:14px">
+                <div><label>Nome</label><input type="text" id="pNome" placeholder="Ex: Headphone Bluetooth Pro"></div>
+                <div><label>Preço de venda (R$)</label><input type="number" id="pPreco" step="0.01" min="0"
+                        placeholder="89.90"></div>
+                <div><label>Custo (R$)</label><input type="number" id="pCusto" step="0.01" min="0" placeholder="40.00">
+                </div>
+                <div><label>Estoque atual</label><input type="number" id="pEstoque" min="0" value="0"></div>
+            </div>
+            <div style="display:flex;gap:10px">
+                <button class="btn btn-primary" onclick="addProduct()">Salvar</button>
+                <button class="btn btn-ghost"
+                    onclick="document.getElementById('addProdForm').style.display='none'">Cancelar</button>
+            </div>
+        </div>
+        <div id="prodContent">
+            <div class="loading"><span class="spinner"></span>Carregando...</div>
+        </div>
+    </div>
+
+    <script>
+        /* ============================================================
+           SUPABASE CONFIG — troque aqui se precisar mudar as chaves
+           ============================================================ */
+        const SUPABASE_URL = 'https://zhkjngycdocuvrcktjvy.supabase.co'
+        const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpoa2puZ3ljZG9jdXZyY2t0anZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMTk2NzEsImV4cCI6MjA5MjU5NTY3MX0.nDw_8Nvh_LCgHkDWEYUMZCsq7u44MVF8rLecP2JKnck'
+
+        const { createClient } = supabase
+        const db = createClient(SUPABASE_URL, SUPABASE_ANON)
+
+        /* ============================================================
+           ESTADO
+           ============================================================ */
+        let allSales = []
+        let allProducts = []
+        let currentPlat = 'ml'
+        let currentPeriod = 'hoje'
+        let chartDays, chartPlat
+
+        /* ============================================================
+           HELPERS
+           ============================================================ */
+        const fmtMoney = v => 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+        const todayStr = () => new Date().toISOString().slice(0, 10)
+
+        function toast(msg, isErr = false) {
+            const t = document.getElementById('toast')
+            t.textContent = msg
+            t.className = 'toast show' + (isErr ? ' err' : '')
+            setTimeout(() => t.className = 'toast', 2800)
+        }
+
+        function setSync(ok) {
+            const dot = document.getElementById('syncDot')
+            const span = document.getElementById('syncStatus')
+            dot.className = 'sync-dot' + (ok ? '' : ' err')
+            span.innerHTML = (ok ? '<span class="sync-dot"></span> Conectado' : '<span class="sync-dot err"></span> Sem conexão')
+        }
+
+        function dateLabel(d) { const [y, m, dd] = d.split('-'); return dd + '/' + m + '/' + y }
+
+        /* ============================================================
+           CARREGAR DADOS
+           ============================================================ */
+        async function loadAll() {
+            try {
+                const [{ data: sales, error: e1 }, { data: prods, error: e2 }] = await Promise.all([
+                    db.from('vendas').select('*').order('data', { ascending: false }).order('id', { ascending: false }),
+                    db.from('produtos').select('*').order('nome')
+                ])
+                if (e1 || e2) throw e1 || e2
+                allSales = sales || []
+                allProducts = prods || []
+                setSync(true)
+                updateDashboard()
+                renderHistory()
+                renderProducts()
+                updateProdSuggestions()
+            } catch (err) {
+                setSync(false)
+                toast('Erro ao conectar com Supabase. Verifique se rodou o SQL.', true)
+                console.error(err)
+            }
+        }
+
+        /* ============================================================
+           PERÍODO
+           ============================================================ */
+        function setPeriod(p, btn) {
+            currentPeriod = p
+            document.querySelectorAll('.pills .pill').forEach(x => x.classList.remove('active'))
+            btn.classList.add('active')
+            updateDashboard()
+        }
+
+        function filterByPeriod(list) {
+            const now = new Date(); now.setHours(0, 0, 0, 0)
+            return list.filter(s => {
+                const d = new Date(s.data + 'T12:00:00')
+                if (currentPeriod === 'hoje') return d >= now
+                if (currentPeriod === 'semana') { const w = new Date(now); w.setDate(w.getDate() - w.getDay()); return d >= w }
+                if (currentPeriod === 'mes') { const m = new Date(now.getFullYear(), now.getMonth(), 1); return d >= m }
+                return true
+            })
+        }
+
+        /* ============================================================
+           DASHBOARD
+           ============================================================ */
+        function updateDashboard() {
+            const f = filterByPeriod(allSales)
+            const ml = f.filter(s => s.plataforma === 'ml')
+            const sh = f.filter(s => s.plataforma === 'sh')
+            const rec = f.reduce((a, s) => a + Number(s.total), 0)
+            const rML = ml.reduce((a, s) => a + Number(s.total), 0)
+            const rSH = sh.reduce((a, s) => a + Number(s.total), 0)
+            const itens = f.reduce((a, s) => a + s.quantidade, 0)
+            const tick = f.length ? rec / f.length : 0
+
+            document.getElementById('kReceit').textContent = fmtMoney(rec)
+            document.getElementById('kVendas').textContent = f.length
+            document.getElementById('kTicket').textContent = fmtMoney(tick)
+            document.getElementById('kML').textContent = fmtMoney(rML)
+            document.getElementById('kSH').textContent = fmtMoney(rSH)
+            document.getElementById('kItens').textContent = itens
+            document.getElementById('kMLsub').textContent = ml.length + ' pedidos'
+            document.getElementById('kSHsub').textContent = sh.length + ' pedidos'
+            document.getElementById('kVendasSub').textContent = ml.length + ' ML · ' + sh.length + ' Shopee'
+
+            // Recent table
+            const rec8 = allSales.slice(0, 8)
+            if (!rec8.length) {
+                document.getElementById('recentContent').innerHTML = '<div class="empty"><div class="empty-icon">📋</div><p>Nenhuma venda ainda. Vá em <strong>Lançar Venda</strong>!</p></div>'
+            } else {
+                document.getElementById('recentContent').innerHTML = `<div class="table-wrap"><table>
+      <thead><tr><th>Data</th><th>Plataforma</th><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Total</th></tr></thead>
+      <tbody>${rec8.map(s => `<tr>
+        <td>${dateLabel(s.data)}</td>
+        <td><span class="plat ${s.plataforma}">${s.plataforma === 'ml' ? '⭐ ML' : '🛒 Shopee'}</span></td>
+        <td>${s.produto}</td><td>${s.quantidade}</td>
+        <td>${fmtMoney(s.valor_unit)}</td>
+        <td style="font-weight:700;color:var(--green)">${fmtMoney(s.total)}</td>
+      </tr>`).join('')}</tbody></table></div>`
+            }
+
+            updateCharts(rML, rSH)
+        }
+
+        /* ============================================================
+           CHARTS
+           ============================================================ */
+        function updateCharts(totalML, totalSH) {
+            const days = {}
+            for (let i = 13; i >= 0; i--) {
+                const d = new Date(); d.setDate(d.getDate() - i)
+                const k = d.toISOString().slice(0, 10)
+                days[k] = { label: d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }), ml: 0, sh: 0 }
+            }
+            allSales.forEach(s => { if (days[s.data]) days[s.data][s.plataforma] += Number(s.total) })
+            const dv = Object.values(days)
+            const labels = dv.map(d => d.label)
+            const dataML = dv.map(d => +d.ml.toFixed(2))
+            const dataSH = dv.map(d => +d.sh.toFixed(2))
+
+            if (chartDays) {
+                chartDays.data.labels = labels
+                chartDays.data.datasets[0].data = dataML
+                chartDays.data.datasets[1].data = dataSH
+                chartDays.update()
+            } else {
+                chartDays = new Chart(document.getElementById('chartDays'), {
+                    type: 'bar',
+                    data: {
+                        labels, datasets: [
+                            { label: 'ML', data: dataML, backgroundColor: 'rgba(255,229,7,.8)', borderRadius: 5, stack: 's' },
+                            { label: 'Shopee', data: dataSH, backgroundColor: 'rgba(238,77,45,.8)', borderRadius: 5, stack: 's' }
+                        ]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { color: '#aaa', font: { size: 10 } } },
+                            y: { grid: { color: 'rgba(0,0,0,.05)' }, ticks: { color: '#aaa', font: { size: 10 }, callback: v => 'R$' + v.toLocaleString('pt-BR') } }
+                        }
+                    }
+                })
+            }
+
+            const total = totalML + totalSH
+            const pct = v => total > 0 ? ((v / total) * 100).toFixed(0) + '%' : '0%'
+            if (chartPlat) {
+                chartPlat.data.datasets[0].data = [+totalML.toFixed(2), +totalSH.toFixed(2)]
+                chartPlat.update()
+            } else {
+                chartPlat = new Chart(document.getElementById('chartPlat'), {
+                    type: 'doughnut',
+                    data: { labels: ['ML', 'Shopee'], datasets: [{ data: [+totalML.toFixed(2), +totalSH.toFixed(2)], backgroundColor: ['#ffe507', '#ee4d2d'], borderWidth: 0, hoverOffset: 4 }] },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { display: false } } }
+                })
+            }
+            document.getElementById('platLegend').innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px"><div style="width:10px;height:10px;border-radius:2px;background:#ffe507"></div><span style="color:var(--muted)">Mercado Livre</span><strong style="margin-left:auto">${pct(totalML)}</strong></div>
+    <div style="display:flex;align-items:center;gap:8px"><div style="width:10px;height:10px;border-radius:2px;background:#ee4d2d"></div><span style="color:var(--muted)">Shopee</span><strong style="margin-left:auto">${pct(totalSH)}</strong></div>`
+        }
+
+        /* ============================================================
+           ADICIONAR VENDA
+           ============================================================ */
+        function selectPlat(p) {
+            currentPlat = p
+            document.getElementById('optML').classList.toggle('selected', p === 'ml')
+            document.getElementById('optSH').classList.toggle('selected', p === 'sh')
+        }
+
+        function updateFormTotal() {
+            const q = parseFloat(document.getElementById('inQtd').value) || 1
+            const v = parseFloat(document.getElementById('inValor').value) || 0
+            document.getElementById('formTotal').textContent = v > 0 ? 'Total: ' + fmtMoney(q * v) : ''
+        }
+
+        async function addSale() {
+            const data = document.getElementById('inData').value
+            const prod = document.getElementById('inProd').value.trim()
+            const qtd = parseInt(document.getElementById('inQtd').value) || 1
+            const val = parseFloat(document.getElementById('inValor').value)
+            const obs = document.getElementById('inObs').value.trim()
+
+            if (!data) { toast('⚠️ Informe a data', true); return }
+            if (!prod) { toast('⚠️ Informe o produto', true); return }
+            if (!val || val <= 0) { toast('⚠️ Informe o valor', true); return }
+
+            const btn = document.getElementById('btnSave')
+            btn.disabled = true; btn.textContent = 'Salvando...'
+
+            const { error } = await db.from('vendas').insert({
+                data, plataforma: currentPlat, produto: prod,
+                quantidade: qtd, valor_unit: val, total: +(qtd * val).toFixed(2), observacao: obs
+            })
+
+            btn.disabled = false; btn.textContent = '✓ Salvar Venda'
+
+            if (error) { toast('Erro ao salvar: ' + error.message, true); return }
+
+            document.getElementById('inProd').value = ''
+            document.getElementById('inQtd').value = '1'
+            document.getElementById('inValor').value = ''
+            document.getElementById('inObs').value = ''
+            document.getElementById('inData').value = todayStr()
+            document.getElementById('formTotal').textContent = ''
+
+            toast('✓ Venda salva!')
+            await loadAll()
+        }
+
+        /* ============================================================
+           DELETAR VENDA
+           ============================================================ */
+        async function deleteSale(id) {
+            if (!confirm('Remover esta venda?')) return
+            const { error } = await db.from('vendas').delete().eq('id', id)
+            if (error) { toast('Erro ao remover', true); return }
+            toast('Venda removida')
+            await loadAll()
+        }
+
+        /* ============================================================
+           HISTÓRICO
+           ============================================================ */
+        function renderHistory() {
+            const q = (document.getElementById('searchSale')?.value || '').toLowerCase()
+            let list = q ? allSales.filter(s => s.produto.toLowerCase().includes(q) || (s.observacao || '').toLowerCase().includes(q)) : allSales
+            if (!list.length) {
+                document.getElementById('histContent').innerHTML = '<div class="empty"><div class="empty-icon">📋</div><p>Nenhuma venda encontrada.</p></div>'
+                return
+            }
+            document.getElementById('histContent').innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Data</th><th>Plataforma</th><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Total</th><th>Obs.</th><th></th></tr></thead>
+    <tbody>${list.map(s => `<tr>
+      <td>${dateLabel(s.data)}</td>
+      <td><span class="plat ${s.plataforma}">${s.plataforma === 'ml' ? '⭐ ML' : '🛒 Shopee'}</span></td>
+      <td><strong>${s.produto}</strong></td>
+      <td>${s.quantidade}</td>
+      <td>${fmtMoney(s.valor_unit)}</td>
+      <td style="font-weight:700;color:var(--green)">${fmtMoney(s.total)}</td>
+      <td style="color:var(--muted);font-size:12px">${s.observacao || '—'}</td>
+      <td><button class="del-btn" onclick="deleteSale(${s.id})">✕</button></td>
+    </tr>`).join('')}</tbody></table></div>`
+        }
+
+        /* ============================================================
+           EXPORT CSV
+           ============================================================ */
+        function exportCSV() {
+            if (!allSales.length) { toast('Nenhuma venda para exportar'); return }
+            const rows = [['Data', 'Plataforma', 'Produto', 'Qtd', 'Valor Unit.', 'Total', 'Observacao']]
+            allSales.forEach(s => rows.push([s.data, s.plataforma === 'ml' ? 'Mercado Livre' : 'Shopee', s.produto, s.quantidade, s.valor_unit, s.total, s.observacao]))
+            const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n')
+            const a = document.createElement('a')
+            a.href = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv)
+            a.download = 'vendas_' + todayStr() + '.csv'; a.click()
+            toast('✓ CSV exportado!')
+        }
+
+        /* ============================================================
+           PRODUTOS
+           ============================================================ */
+        async function addProduct() {
+            const nome = document.getElementById('pNome').value.trim()
+            const preco = parseFloat(document.getElementById('pPreco').value) || 0
+            const custo = parseFloat(document.getElementById('pCusto').value) || 0
+            const estoque = parseInt(document.getElementById('pEstoque').value) || 0
+            if (!nome) { toast('⚠️ Informe o nome', true); return }
+
+            const { error } = await db.from('produtos').insert({ nome, preco, custo, estoque })
+            if (error) { toast('Erro: ' + error.message, true); return }
+
+            document.getElementById('pNome').value = ''
+            document.getElementById('pPreco').value = ''
+            document.getElementById('pCusto').value = ''
+            document.getElementById('pEstoque').value = '0'
+            document.getElementById('addProdForm').style.display = 'none'
+            toast('✓ Produto salvo!')
+            await loadAll()
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm('Remover este produto?')) return
+            const { error } = await db.from('produtos').delete().eq('id', id)
+            if (error) { toast('Erro ao remover', true); return }
+            toast('Produto removido')
+            await loadAll()
+        }
+
+        function renderProducts() {
+            if (!allProducts.length) {
+                document.getElementById('prodContent').innerHTML = '<div class="empty"><div class="empty-icon">📦</div><p>Nenhum produto cadastrado ainda.</p></div>'
+                return
+            }
+            document.getElementById('prodContent').innerHTML = `<div class="prod-list">${allProducts.map(p => {
+                const margem = p.preco > 0 && p.custo > 0 ? (((p.preco - p.custo) / p.preco) * 100).toFixed(0) + '%' : '—'
+                const ec = p.estoque === 0 ? 'var(--red)' : p.estoque <= 5 ? '#d97706' : 'var(--green)'
+                return `<div class="prod-item">
+      <div style="flex:1"><div style="font-weight:700">${p.nome}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">Custo: ${p.custo > 0 ? fmtMoney(p.custo) : '—'} · Margem: ${margem}</div>
+      </div>
+      <div style="text-align:right;margin-right:20px">
+        <div style="font-size:11px;color:var(--muted)">Estoque</div>
+        <div style="font-size:20px;font-weight:800;color:${ec}">${p.estoque}</div>
+      </div>
+      <div style="font-size:18px;font-weight:800;color:var(--green);min-width:100px;text-align:right">${p.preco > 0 ? fmtMoney(p.preco) : '—'}</div>
+      <button class="del-btn" onclick="deleteProduct(${p.id})">✕</button>
+    </div>`
+            }).join('')}</div>`
+        }
+
+        function updateProdSuggestions() {
+            const names = [...new Set([...allSales.map(s => s.produto), ...allProducts.map(p => p.nome)])]
+            document.getElementById('prodSuggestions').innerHTML = names.map(n => `<option value="${n}">`).join('')
+        }
+
+        /* ============================================================
+           PRECIFICAÇÃO
+           ============================================================ */
+        function updateFees() {
+            const plat = document.getElementById('cPlat').value
+            const taxa = { ml_classico: 16, ml_premium: 19, sh: 20 }
+            if (plat !== 'custom') document.getElementById('cTaxa').value = taxa[plat]
+            calcPrice()
+        }
+
+        function calcPrice() {
+            const custo = parseFloat(document.getElementById('cCusto').value) || 0
+            const embal = parseFloat(document.getElementById('cEmbal').value) || 0
+            const frete = parseFloat(document.getElementById('cFrete').value) || 0
+            const lucroP = parseFloat(document.getElementById('cLucro').value) || 0
+            const taxaP = parseFloat(document.getElementById('cTaxa').value) || 0
+            const impP = parseFloat(document.getElementById('cImposto').value) || 0
+            const outros = parseFloat(document.getElementById('cOutros').value) || 0
+            if (!custo) { document.getElementById('calcResult').innerHTML = '<div style="color:var(--muted);font-size:14px">Informe o custo do produto para calcular.</div>'; return }
+
+            const custoTotal = custo + embal + frete + outros
+            const divisor = 1 - (taxaP / 100) - (impP / 100)
+            const precoMin = divisor > 0 ? custoTotal / divisor : custoTotal
+            const precoFinal = divisor > 0 ? (custoTotal * (1 + lucroP / 100)) / divisor : custoTotal * (1 + lucroP / 100)
+            const taxaVal = precoFinal * (taxaP / 100)
+            const impVal = precoFinal * (impP / 100)
+            const lucroVal = precoFinal - custoTotal - taxaVal - impVal
+            const margemReal = precoFinal > 0 ? (lucroVal / precoFinal) * 100 : 0
+
+            document.getElementById('calcResult').innerHTML = `
+    <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:10px">Resultado</div>
+    <div class="calc-row"><span>Custo total (produto + embal + frete + outros)</span><span class="red">${fmtMoney(custoTotal)}</span></div>
+    <div class="calc-row"><span>Taxa da plataforma (${taxaP}%)</span><span class="red">${fmtMoney(taxaVal)}</span></div>
+    ${impP > 0 ? `<div class="calc-row"><span>Imposto (${impP}%)</span><span class="red">${fmtMoney(impVal)}</span></div>` : ''}
+    <div class="calc-row" style="background:#f0fdf4;border-radius:8px;padding:8px 10px;margin-top:4px"><span>💚 Lucro estimado</span><span class="green" style="font-size:16px">${fmtMoney(lucroVal)} (${margemReal.toFixed(1)}%)</span></div>
+    <div class="calc-row" style="margin-top:12px;font-size:17px;font-weight:800"><span>🏷️ Preço de venda sugerido</span><span style="color:var(--green);font-size:22px">${fmtMoney(precoFinal)}</span></div>
+    <div class="calc-row" style="border-bottom:none"><span style="color:var(--muted);font-size:12px">Preço mínimo sem prejuízo</span><span style="color:var(--muted)">${fmtMoney(precoMin)}</span></div>`
+        }
+
+        /* ============================================================
+           NAV
+           ============================================================ */
+        function showPage(id, btn) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'))
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
+            document.getElementById('page-' + id).classList.add('active')
+            btn.classList.add('active')
+        }
+
+        /* ============================================================
+           INIT
+           ============================================================ */
+        document.getElementById('inData').value = todayStr()
+        document.getElementById('navDate').textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' })
+        loadAll()
+        // Atualiza dados a cada 60 segundos (caso use em outro dispositivo)
+        setInterval(loadAll, 60000)
+    </script>
+</body>
+
+</html>

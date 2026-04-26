@@ -1,0 +1,13 @@
+[
+  {
+    "titulo": "Rolo Tira Pelos e Poeira Lavável Reutilizável",
+    "preco": "R$ 24,90",
+    "descricao": "Esqueça os rolos adesivos descartáveis. Este rolo lavável em gel remove pelos de pets, poeira e fiapos instantaneamente. Basta lavar com água corrente e ele volta a ficar 100% pegajoso.\n\n• Material durável e ecológico.\n• Ideal para roupas, sofás e bancos de carro.",
+    "tags": ["🔥 Destaque", "Casa", "Pets"],
+    "midia": [
+     "./assets/rolo.jpg", "./assets/rolo2.png", "./assets/rolo3.png", "./assets/rolo4.png", "./assets/rolo5.mp4"
+    ],
+    "shopee": "https://shopee.com.br/product/1534868702/58209126733/",
+    "mercadoLivre": "https://bit.ly/4tWqjIF"
+  }
+]
