@@ -4,29 +4,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Painel da Loja</title>
+    <title>Painel da Loja</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* ===================== CONFIG ===================== */
-        /* Se precisar trocar as chaves, procure por "SUPABASE CONFIG" abaixo */
-
         :root {
-            --bg: #f7f7f5;
-            --card: #ffffff;
-            --border: #e5e5e0;
-            --text: #1a1a18;
-            --muted: #888880;
-            --ml-bg: #fffbe0;
-            --ml-c: #7a6c00;
-            --ml-b: #ffe507;
-            --sh-bg: #ee4d2d;
-            --sh-c: #fff;
-            --green: #16a34a;
+            --bg: #f5f5f2;
+            --card: #fff;
+            --border: #e8e8e3;
+            --text: #18181a;
+            --muted: #8a8a80;
+            --ml: #ffe507;
+            --ml-t: #6b5e00;
+            --sh: #ee4d2d;
+            --sh-t: #fff;
+            --green: #15803d;
+            --green-bg: #f0fdf4;
             --red: #dc2626;
-            --blue: #2563eb;
-            --radius: 14px;
-            --shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+            --red-bg: #fef2f2;
+            --blue: #1d4ed8;
+            --yellow: #d97706;
+            --radius: 12px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, .08), 0 1px 2px rgba(0, 0, 0, .04);
+            --shadow-lg: 0 4px 16px rgba(0, 0, 0, .10);
         }
 
         * {
@@ -39,43 +39,130 @@
             background: var(--bg);
             color: var(--text);
             font-family: 'Segoe UI', system-ui, sans-serif;
-            font-size: 15px;
+            font-size: 14px;
             min-height: 100vh
         }
 
-        /* NAV */
+        a {
+            color: inherit;
+            text-decoration: none
+        }
+
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #d0d0c8;
+            border-radius: 99px
+        }
+
+        /* ── LOGIN ── */
+        #loginPage {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #18181a 0%, #2d2d30 100%);
+        }
+
+        .login-box {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 40px 36px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: var(--shadow-lg)
+        }
+
+        .login-logo {
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            margin-bottom: 6px
+        }
+
+        .login-logo span {
+            color: var(--ml)
+        }
+
+        .login-sub {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 28px
+        }
+
+        .login-err {
+            background: var(--red-bg);
+            color: var(--red);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none
+        }
+
+        /* ── SHELL ── */
+        #app {
+            display: none;
+            min-height: 100vh
+        }
+
         nav {
             background: var(--card);
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
-            padding: 0 28px;
-            height: 60px;
-            gap: 6px;
+            padding: 0 24px;
+            height: 58px;
+            gap: 2px;
             position: sticky;
             top: 0;
-            z-index: 100;
-            box-shadow: var(--shadow)
+            z-index: 200;
+            box-shadow: var(--shadow);
         }
 
         .logo {
-            font-size: 20px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            margin-right: 28px
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: -.5px;
+            margin-right: 24px;
+            white-space: nowrap
+        }
+
+        .logo span {
+            color: var(--ml)
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 2px;
+            overflow-x: auto;
+            flex: 1
+        }
+
+        .nav-tabs::-webkit-scrollbar {
+            height: 0
         }
 
         .tab {
-            padding: 8px 18px;
+            padding: 7px 15px;
             border-radius: 8px;
             cursor: pointer;
             color: var(--muted);
             border: none;
             background: none;
-            font-size: 14px;
+            font-size: 13px;
             font-family: inherit;
             font-weight: 500;
-            transition: all .15s
+            transition: all .15s;
+            white-space: nowrap;
         }
 
         .tab:hover {
@@ -93,26 +180,36 @@
             margin-left: auto;
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 13px;
+            gap: 10px;
+            padding-left: 12px
+        }
+
+        .sync-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
             color: var(--muted)
         }
 
-        .sync-dot {
-            width: 8px;
-            height: 8px;
+        .dot {
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
             background: #22c55e;
-            display: inline-block;
-            animation: pulse 2s infinite
+            flex-shrink: 0
         }
 
-        .sync-dot.err {
+        .dot.err {
             background: var(--red);
-            animation: none
+            animation: none !important
         }
 
-        @keyframes pulse {
+        .dot.loading {
+            background: var(--yellow)
+        }
+
+        @keyframes blink {
 
             0%,
             100% {
@@ -120,15 +217,37 @@
             }
 
             50% {
-                opacity: .4
+                opacity: .3
             }
         }
 
-        /* PAGES */
+        .dot {
+            animation: blink 2s infinite
+        }
+
+        .btn-logout {
+            padding: 6px 14px;
+            border-radius: 7px;
+            border: 1px solid var(--border);
+            background: none;
+            color: var(--muted);
+            font-family: inherit;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all .15s
+        }
+
+        .btn-logout:hover {
+            background: var(--red-bg);
+            color: var(--red);
+            border-color: var(--red)
+        }
+
+        /* ── PAGES ── */
         .page {
             display: none;
-            padding: 28px;
-            max-width: 1100px;
+            padding: 24px;
+            max-width: 1200px;
             margin: 0 auto
         }
 
@@ -136,8 +255,8 @@
             display: block
         }
 
-        /* SECTION HEADER */
-        .section-header {
+        /* ── SECTION HEADER ── */
+        .sh {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -146,23 +265,27 @@
             gap: 10px
         }
 
-        .section-title {
+        .sh h2 {
             font-size: 20px;
             font-weight: 800;
-            letter-spacing: -.3px
+            letter-spacing: -.4px
         }
 
-        /* CARD */
+        /* ── CARDS ── */
         .card {
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 22px;
+            padding: 20px;
             box-shadow: var(--shadow)
         }
 
+        .card+.card {
+            margin-top: 16px
+        }
+
         .card-title {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: .08em;
@@ -170,102 +293,147 @@
             margin-bottom: 14px
         }
 
-        /* KPI */
+        /* ── KPI GRID ── */
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
-            gap: 14px;
-            margin-bottom: 22px
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px
         }
 
         .kpi {
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 20px 18px;
+            padding: 18px 16px;
             box-shadow: var(--shadow)
         }
 
         .kpi-label {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: .07em;
             color: var(--muted);
-            margin-bottom: 8px
+            margin-bottom: 6px
         }
 
-        .kpi-value {
-            font-size: 26px;
+        .kpi-val {
+            font-size: 24px;
             font-weight: 800;
-            letter-spacing: -.8px
+            letter-spacing: -.6px;
+            line-height: 1.1
         }
 
         .kpi-sub {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--muted);
             margin-top: 4px
         }
 
-        .green {
+        .kpi-val.green {
             color: var(--green)
         }
 
-        .red {
+        .kpi-val.red {
             color: var(--red)
         }
 
-        /* FORM */
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 14px
+        .kpi-val.blue {
+            color: var(--blue)
         }
 
-        label {
-            display: block;
-            font-size: 12px;
+        .kpi-val.yellow {
+            color: var(--yellow)
+        }
+
+        /* ── FORM ELEMENTS ── */
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 14px;
+            margin-bottom: 16px
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        .form-group label,
+        .fl {
+            font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: .06em;
-            color: var(--muted);
-            margin-bottom: 6px
+            letter-spacing: .07em;
+            color: var(--muted)
         }
 
         input,
         select,
         textarea {
             width: 100%;
-            padding: 10px 14px;
-            border-radius: 8px;
+            padding: 10px 13px;
+            border-radius: 9px;
             border: 1.5px solid var(--border);
-            background: var(--bg);
+            background: #fafaf8;
             font-family: inherit;
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text);
-            transition: border-color .15s
+            transition: border-color .15s, box-shadow .15s, background .15s;
+        }
+
+        input:hover,
+        select:hover {
+            border-color: #c8c8c0;
+            background: #f7f7f5
         }
 
         input:focus,
-        select:focus {
+        select:focus,
+        textarea:focus {
             outline: none;
-            border-color: var(--text)
+            border-color: #6366f1;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, .1)
         }
 
-        /* BUTTONS */
+        input[type=date] {
+            cursor: pointer
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 70px
+        }
+
+        input.sm,
+        select.sm {
+            padding: 7px 10px;
+            font-size: 12px
+        }
+
+        /* ── BUTTONS ── */
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 7px;
-            padding: 10px 22px;
-            border-radius: 9px;
+            gap: 6px;
+            padding: 9px 20px;
+            border-radius: 8px;
             border: none;
             font-family: inherit;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
             cursor: pointer;
-            transition: all .15s
+            transition: all .15s;
+            white-space: nowrap;
+        }
+
+        .btn:disabled {
+            opacity: .5;
+            cursor: not-allowed
         }
 
         .btn-primary {
@@ -273,13 +441,17 @@
             color: #fff
         }
 
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             background: #333
         }
 
-        .btn-primary:disabled {
-            background: #999;
-            cursor: not-allowed
+        .btn-success {
+            background: var(--green);
+            color: #fff
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #166534
         }
 
         .btn-ghost {
@@ -288,39 +460,212 @@
             color: var(--text)
         }
 
-        .btn-ghost:hover {
-            background: #ededea
+        .btn-ghost:hover:not(:disabled) {
+            background: #ececea
+        }
+
+        .btn-danger {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid #fecaca
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: #fee2e2
         }
 
         .btn-sm {
-            padding: 6px 14px;
+            padding: 6px 13px;
             font-size: 12px
         }
 
-        /* PLATFORM */
-        .plat {
+        .btn-xs {
+            padding: 4px 9px;
+            font-size: 11px;
+            border-radius: 6px
+        }
+
+        .btn-icon {
+            padding: 6px;
+            width: 32px;
+            height: 32px;
+            border-radius: 7px
+        }
+
+        /* ── PLATFORM TOGGLE ── */
+        .plat-toggle {
+            display: flex;
+            gap: 10px
+        }
+
+        .plat-opt {
+            flex: 1;
+            padding: 13px 10px 11px;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            background: var(--bg);
+            cursor: pointer;
+            text-align: center;
+            transition: all .18s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .plat-opt:hover {
+            border-color: #c8c8c0;
+            background: #f0f0ec;
+            transform: translateY(-1px)
+        }
+
+        .plat-opt .po-icon {
+            font-size: 22px;
+            line-height: 1;
+            transition: transform .18s
+        }
+
+        .plat-opt .po-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted);
+            transition: color .18s;
+            letter-spacing: .01em
+        }
+
+        .plat-opt .po-check {
+            position: absolute;
+            top: 7px;
+            right: 7px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 1.5px solid var(--border);
+            background: var(--card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            transition: all .18s;
+            opacity: 0;
+            transform: scale(.5);
+        }
+
+        /* ML selected */
+        .plat-opt.ml.on {
+            border-color: #e6cf00;
+            background: linear-gradient(145deg, #fffde0, #fff9b0);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 229, 7, .3)
+        }
+
+        .plat-opt.ml.on .po-label {
+            color: #6b5e00;
+            font-weight: 800
+        }
+
+        .plat-opt.ml.on .po-check {
+            opacity: 1;
+            transform: scale(1);
+            background: #ffe507;
+            border-color: #e6cf00;
+            color: #6b5e00
+        }
+
+        /* Shopee selected */
+        .plat-opt.sh.on {
+            border-color: #d94020;
+            background: linear-gradient(145deg, #ee4d2d, #c93d21);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(238, 77, 45, .35)
+        }
+
+        .plat-opt.sh.on .po-icon {
+            filter: brightness(0) invert(1)
+        }
+
+        .plat-opt.sh.on .po-label {
+            color: #fff;
+            font-weight: 800
+        }
+
+        .plat-opt.sh.on .po-check {
+            opacity: 1;
+            transform: scale(1);
+            background: rgba(255, 255, 255, .25);
+            border-color: rgba(255, 255, 255, .5);
+            color: #fff
+        }
+
+        /* Outros selected */
+        .plat-opt.outros.on {
+            border-color: #4f46e5;
+            background: linear-gradient(145deg, #eef2ff, #e0e7ff);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, .25)
+        }
+
+        .plat-opt.outros.on .po-label {
+            color: #3730a3;
+            font-weight: 800
+        }
+
+        .plat-opt.outros.on .po-check {
+            opacity: 1;
+            transform: scale(1);
+            background: #6366f1;
+            border-color: #4f46e5;
+            color: #fff
+        }
+
+        /* ── PLATFORM BADGE ── */
+        .badge {
             display: inline-flex;
             align-items: center;
             gap: 4px;
             border-radius: 6px;
-            padding: 3px 10px;
-            font-size: 12px;
+            padding: 2px 9px;
+            font-size: 11px;
             font-weight: 700
         }
 
-        .plat.ml {
-            background: var(--ml-bg);
-            color: var(--ml-c);
-            border: 1px solid var(--ml-b)
+        .badge.ml {
+            background: #fffbe0;
+            color: var(--ml-t);
+            border: 1px solid var(--ml)
         }
 
-        .plat.sh {
-            background: var(--sh-bg);
-            color: var(--sh-c)
+        .badge.sh {
+            background: var(--sh);
+            color: #fff
         }
 
-        /* TABLE */
-        .table-wrap {
+        .badge.outros {
+            background: #eef2ff;
+            color: #4338ca;
+            border: 1px solid #a5b4fc
+        }
+
+        .badge.green {
+            background: var(--green-bg);
+            color: var(--green)
+        }
+
+        .badge.red {
+            background: var(--red-bg);
+            color: var(--red)
+        }
+
+        .badge.yellow {
+            background: #fefce8;
+            color: var(--yellow);
+            border: 1px solid #fde047
+        }
+
+        /* ── TABLE ── */
+        .tbl-wrap {
             overflow-x: auto
         }
 
@@ -329,84 +674,129 @@
             border-collapse: collapse
         }
 
-        th {
+        thead th {
             text-align: left;
-            padding: 9px 14px;
-            font-size: 11px;
+            padding: 8px 12px;
+            font-size: 10px;
             text-transform: uppercase;
-            letter-spacing: .06em;
+            letter-spacing: .07em;
             color: var(--muted);
             border-bottom: 1.5px solid var(--border);
-            font-weight: 700
+            font-weight: 700;
+            white-space: nowrap;
         }
 
-        td {
-            padding: 12px 14px;
-            border-bottom: 1px solid #f0f0ec;
-            vertical-align: middle;
-            font-size: 14px
+        tbody td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f3f3f0;
+            font-size: 13px;
+            vertical-align: middle
         }
 
-        tr:last-child td {
+        tbody tr:last-child td {
             border-bottom: none
         }
 
-        tr:hover td {
-            background: #fafaf8
+        tbody tr:hover td {
+            background: #fafafa
         }
 
-        .del-btn {
+        .icon-btn {
             background: none;
             border: none;
             cursor: pointer;
             color: #ccc;
-            font-size: 16px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            transition: all .15s
+            padding: 4px 6px;
+            border-radius: 5px;
+            transition: all .15s;
+            font-size: 14px;
+            line-height: 1
         }
 
-        .del-btn:hover {
+        .icon-btn:hover.edit {
+            color: var(--blue);
+            background: #eff6ff
+        }
+
+        .icon-btn:hover.del {
             color: var(--red);
-            background: #fee2e2
+            background: var(--red-bg)
         }
 
-        /* CHARTS */
-        .charts-row {
+        /* ── CHARTS ── */
+        .charts-2col {
             display: grid;
             grid-template-columns: 2fr 1fr;
-            gap: 16px;
-            margin-bottom: 20px
+            gap: 14px;
+            margin-bottom: 18px
         }
 
-        @media(max-width:750px) {
-            .charts-row {
+        .charts-3col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 18px
+        }
+
+        @media(max-width:860px) {
+
+            .charts-2col,
+            .charts-3col {
                 grid-template-columns: 1fr
             }
         }
 
-        .chart-wrap {
+        .chart-box {
             position: relative;
             width: 100%
         }
 
-        /* PILLS */
+        /* ── TABS INNER ── */
+        .inner-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0
+        }
+
+        .itab {
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all .15s;
+        }
+
+        .itab.active {
+            color: var(--text);
+            font-weight: 700;
+            border-bottom-color: var(--text)
+        }
+
+        /* ── PILLS ── */
         .pills {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             flex-wrap: wrap
         }
 
         .pill {
-            padding: 6px 14px;
+            padding: 5px 13px;
             border-radius: 99px;
             border: 1.5px solid var(--border);
             background: var(--card);
             color: var(--muted);
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             cursor: pointer;
-            transition: all .15s
+            transition: all .15s;
         }
 
         .pill.active {
@@ -415,109 +805,33 @@
             color: #fff
         }
 
-        /* PLATFORM SELECT */
-        .plat-select {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 0
-        }
-
-        .plat-opt {
-            flex: 1;
-            padding: 10px;
-            border-radius: 8px;
-            border: 2px solid var(--border);
-            background: var(--bg);
-            cursor: pointer;
-            text-align: center;
-            font-weight: 700;
-            font-size: 13px;
-            transition: all .15s
-        }
-
-        .plat-opt.ml.selected {
-            border-color: var(--ml-b);
-            background: var(--ml-bg);
-            color: var(--ml-c)
-        }
-
-        .plat-opt.sh.selected {
-            border-color: var(--sh-bg);
-            background: var(--sh-bg);
-            color: #fff
-        }
-
-        /* CALC */
-        .calc-result {
-            background: var(--bg);
-            border-radius: 10px;
-            padding: 18px;
-            margin-top: 18px
-        }
-
-        .calc-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 7px 0;
-            border-bottom: 1px solid var(--border);
-            font-size: 14px
-        }
-
-        .calc-row:last-child {
-            border-bottom: none
-        }
-
-        .calc-row span:last-child {
-            font-weight: 600
-        }
-
-        /* PROD LIST */
-        .prod-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px
-        }
-
-        .prod-item {
-            background: var(--bg);
-            border-radius: 10px;
-            padding: 14px 18px;
-            display: flex;
-            align-items: center;
-            gap: 14px
-        }
-
-        /* EMPTY */
-        .empty {
+        /* ── EMPTY ── */
+        .empty-state {
             text-align: center;
             padding: 48px 20px;
             color: var(--muted)
         }
 
         .empty-icon {
-            font-size: 40px;
-            margin-bottom: 12px
+            font-size: 36px;
+            margin-bottom: 10px
         }
 
-        /* LOADING */
-        .loading {
-            text-align: center;
-            padding: 32px;
-            color: var(--muted);
+        .empty-state p {
             font-size: 14px
         }
 
-        .spinner {
+        /* ── LOADING ── */
+        .spin {
             display: inline-block;
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             border: 2px solid var(--border);
             border-top-color: var(--text);
             border-radius: 50%;
-            animation: spin .7s linear infinite;
-            margin-right: 8px;
-            vertical-align: middle
+            animation: spin .6s linear infinite;
+            vertical-align: middle;
+            margin-right: 6px
         }
 
         @keyframes spin {
@@ -526,23 +840,299 @@
             }
         }
 
-        /* TOAST */
+        .loading-box {
+            padding: 32px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        /* ── MODAL ── */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .5);
+            z-index: 500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            backdrop-filter: blur(2px)
+        }
+
+        .modal-backdrop.open {
+            display: flex
+        }
+
+        .modal {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 28px 30px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .18), 0 4px 16px rgba(0, 0, 0, .08)
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: -.3px
+        }
+
+        .modal-close {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            font-size: 14px;
+            cursor: pointer;
+            color: var(--muted);
+            padding: 5px 8px;
+            border-radius: 8px;
+            line-height: 1;
+            transition: all .15s
+        }
+
+        .modal-close:hover {
+            background: #e8e8e3;
+            color: var(--text)
+        }
+
+        /* ── VARIAÇÃO LIST ── */
+        .var-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px
+        }
+
+        .var-item {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto auto;
+            gap: 8px;
+            align-items: center;
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 8px 12px
+        }
+
+        .var-item span {
+            font-size: 13px;
+            font-weight: 600
+        }
+
+        /* ── PRODUCT CARD ── */
+        .prod-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 14px
+        }
+
+        .prod-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .15s
+        }
+
+        .prod-card:hover {
+            box-shadow: var(--shadow-lg)
+        }
+
+        .prod-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 10px
+        }
+
+        .prod-card-name {
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.3
+        }
+
+        .prod-card-sku {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 2px
+        }
+
+        .prod-stats-row {
+            display: flex;
+            gap: 16px;
+            margin-top: 10px
+        }
+
+        .ps {
+            flex: 1;
+            text-align: center
+        }
+
+        .ps-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--muted);
+            margin-bottom: 2px
+        }
+
+        .ps-val {
+            font-size: 17px;
+            font-weight: 800
+        }
+
+        .stock-bar {
+            height: 3px;
+            background: var(--border);
+            border-radius: 2px;
+            margin-top: 10px;
+            overflow: hidden
+        }
+
+        .stock-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width .3s
+        }
+
+        /* ── CUSTO CATEGORY ── */
+        .cat-chip {
+            display: inline-block;
+            padding: 2px 9px;
+            border-radius: 99px;
+            font-size: 11px;
+            font-weight: 700
+        }
+
+        .cat-embalagem {
+            background: #fef3c7;
+            color: #92400e
+        }
+
+        .cat-etiqueta {
+            background: #ede9fe;
+            color: #5b21b6
+        }
+
+        .cat-marketing {
+            background: #fce7f3;
+            color: #9d174d
+        }
+
+        .cat-frete {
+            background: #dbeafe;
+            color: #1e40af
+        }
+
+        .cat-fixo {
+            background: #fee2e2;
+            color: #991b1b
+        }
+
+        .cat-outros {
+            background: #f3f4f6;
+            color: #374151
+        }
+
+        /* ── FINANCE CARD ── */
+        .fin-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px;
+            box-shadow: var(--shadow)
+        }
+
+        .fin-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 9px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px
+        }
+
+        .fin-row:last-child {
+            border-bottom: none
+        }
+
+        .fin-row.bold {
+            font-weight: 700;
+            font-size: 14px
+        }
+
+        .fin-row.total {
+            font-size: 16px;
+            font-weight: 800;
+            padding-top: 14px
+        }
+
+        .dist-bar {
+            height: 10px;
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex;
+            margin-top: 8px;
+            gap: 3px
+        }
+
+        .dist-seg {
+            height: 100%;
+            border-radius: 4px;
+            transition: width .5s
+        }
+
+        .dist-legend {
+            display: flex;
+            gap: 16px;
+            margin-top: 10px;
+            flex-wrap: wrap
+        }
+
+        .dl-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px
+        }
+
+        .dl-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        /* ── TOAST ── */
         .toast {
             position: fixed;
             bottom: 24px;
             right: 24px;
-            background: var(--text);
-            color: #fff;
-            padding: 14px 22px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            opacity: 0;
-            transform: translateY(12px);
-            transition: all .25s;
             z-index: 999;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            background: var(--text);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all .25s;
             pointer-events: none;
-            max-width: 320px
+            max-width: 320px;
+            box-shadow: var(--shadow-lg)
         }
 
         .toast.show {
@@ -550,35 +1140,111 @@
             transform: translateY(0)
         }
 
+        .toast.ok {
+            background: #15803d
+        }
+
         .toast.err {
             background: var(--red)
         }
 
-        /* TIP */
-        .tip {
-            background: #fffbe0;
-            border: 1px solid #ffe507;
-            border-radius: 8px;
-            padding: 10px 14px;
-            font-size: 13px;
-            color: #7a6c00;
-            margin-bottom: 16px
+        .toast.warn {
+            background: var(--yellow)
         }
 
-        @media(max-width:600px) {
-            .kpi-value {
-                font-size: 20px
-            }
+        /* ── TIP ── */
+        .tip {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 12px;
+            color: #92400e;
+            margin-bottom: 14px
+        }
 
+        /* ── SEARCH ── */
+        .search-wrap {
+            position: relative;
+            display: inline-block
+        }
+
+        .search-wrap input {
+            padding-left: 32px;
+            width: 200px
+        }
+
+        .search-wrap::before {
+            content: "🔍";
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            pointer-events: none
+        }
+
+        /* ── MONTH SELECT ── */
+        .month-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+
+        .month-nav button {
+            background: none;
+            border: 1.5px solid var(--border);
+            border-radius: 7px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 16px;
+            color: var(--muted);
+            transition: all .15s
+        }
+
+        .month-nav button:hover {
+            background: var(--bg);
+            color: var(--text)
+        }
+
+        .month-nav span {
+            font-size: 15px;
+            font-weight: 700;
+            min-width: 130px;
+            text-align: center
+        }
+
+        /* ── SEPARATOR ── */
+        hr.sep {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 16px 0
+        }
+
+        /* ── RESPONSIVE ── */
+        @media(max-width:640px) {
             nav {
-                padding: 0 14px
+                padding: 0 12px
             }
 
             .page {
-                padding: 16px
+                padding: 14px
             }
 
-            .form-grid {
+            .kpi-val {
+                font-size: 20px
+            }
+
+            .sh h2 {
+                font-size: 17px
+            }
+
+            .btn {
+                padding: 8px 14px;
+                font-size: 12px
+            }
+
+            .charts-2col {
                 grid-template-columns: 1fr
             }
         }
@@ -587,274 +1253,875 @@
 
 <body>
 
-    <nav>
-        <div class="logo">📦 Minha Loja</div>
-        <button class="tab active" onclick="showPage('dashboard',this)">Resumo</button>
-        <button class="tab" onclick="showPage('vendas',this)">Lançar Venda</button>
-        <button class="tab" onclick="showPage('precificacao',this)">Precificação</button>
-        <button class="tab" onclick="showPage('produtos',this)">Produtos</button>
-        <div class="nav-right">
-            <span id="syncStatus"><span class="sync-dot" id="syncDot"></span> Conectado</span>
-            <span id="navDate" style="color:var(--muted)"></span>
-        </div>
-    </nav>
-
-    <div id="toast" class="toast"></div>
-
-    <!-- ===== RESUMO ===== -->
-    <div class="page active" id="page-dashboard">
-        <div class="section-header">
-            <div class="section-title">Resumo</div>
-            <div class="pills">
-                <div class="pill active" onclick="setPeriod('hoje',this)">Hoje</div>
-                <div class="pill" onclick="setPeriod('semana',this)">Esta semana</div>
-                <div class="pill" onclick="setPeriod('mes',this)">Este mês</div>
-                <div class="pill" onclick="setPeriod('tudo',this)">Tudo</div>
+    <!-- =============================================================== LOGIN =============================================================== -->
+    <div id="loginPage">
+        <div class="login-box">
+            <div class="login-logo">📦 Minha<span>Loja</span></div>
+            <div class="login-sub">Painel de gestão — acesso restrito</div>
+            <div class="login-err" id="loginErr"></div>
+            <div class="form-group" style="margin-bottom:12px">
+                <label>E-mail</label>
+                <input type="email" id="loginEmail" placeholder="seu@email.com" autocomplete="email">
             </div>
-        </div>
-        <div class="kpi-grid">
-            <div class="kpi">
-                <div class="kpi-label">💰 Receita</div>
-                <div class="kpi-value green" id="kReceit">—</div>
-                <div class="kpi-sub" id="kReceitSub"></div>
+            <div class="form-group" style="margin-bottom:20px">
+                <label>Senha</label>
+                <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
             </div>
-            <div class="kpi">
-                <div class="kpi-label">📦 Vendas</div>
-                <div class="kpi-value" id="kVendas">—</div>
-                <div class="kpi-sub" id="kVendasSub"></div>
-            </div>
-            <div class="kpi">
-                <div class="kpi-label">🎯 Ticket Médio</div>
-                <div class="kpi-value" id="kTicket">—</div>
-                <div class="kpi-sub">por pedido</div>
-            </div>
-            <div class="kpi">
-                <div class="kpi-label">⭐ Mercado Livre</div>
-                <div class="kpi-value" id="kML">—</div>
-                <div class="kpi-sub" id="kMLsub"></div>
-            </div>
-            <div class="kpi">
-                <div class="kpi-label">🛒 Shopee</div>
-                <div class="kpi-value" id="kSH">—</div>
-                <div class="kpi-sub" id="kSHsub"></div>
-            </div>
-            <div class="kpi">
-                <div class="kpi-label">📊 Itens Vendidos</div>
-                <div class="kpi-value" id="kItens">—</div>
-                <div class="kpi-sub">unidades</div>
-            </div>
-        </div>
-        <div class="charts-row">
-            <div class="card">
-                <div class="card-title">Receita por dia — últimos 14 dias</div>
-                <div class="chart-wrap" style="height:210px"><canvas id="chartDays" role="img"
-                        aria-label="Receita por dia"></canvas></div>
-            </div>
-            <div class="card">
-                <div class="card-title">ML vs Shopee</div>
-                <div class="chart-wrap" style="height:160px"><canvas id="chartPlat" role="img"
-                        aria-label="Receita por plataforma"></canvas></div>
-                <div id="platLegend" style="margin-top:12px;font-size:13px;display:flex;flex-direction:column;gap:6px">
-                </div>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-title">Últimas vendas</div>
-            <div id="recentContent">
-                <div class="loading"><span class="spinner"></span>Carregando...</div>
-            </div>
+            <button class="btn btn-primary" style="width:100%;padding:12px" id="btnLogin"
+                onclick="doLogin()">Entrar</button>
         </div>
     </div>
 
-    <!-- ===== LANÇAR VENDA ===== -->
-    <div class="page" id="page-vendas">
-        <div class="section-header">
-            <div class="section-title">Lançar Venda</div>
-        </div>
-        <div class="tip">💡 Sempre que fizer uma venda no ML ou Shopee, anote aqui. Os dados ficam salvos na nuvem e
-            aparecem em todos os seus dispositivos.</div>
-        <div class="card" style="margin-bottom:20px">
-            <div class="card-title">Nova venda</div>
-            <div style="margin-bottom:14px">
-                <label>Plataforma</label>
-                <div class="plat-select">
-                    <div class="plat-opt ml selected" id="optML" onclick="selectPlat('ml')">⭐ Mercado Livre</div>
-                    <div class="plat-opt sh" id="optSH" onclick="selectPlat('sh')">🛒 Shopee</div>
+    <!-- =============================================================== APP =============================================================== -->
+    <div id="app">
+        <nav>
+            <div class="logo">📦 Minha<span>Loja</span></div>
+            <div class="nav-tabs">
+                <button class="tab active" onclick="goTo('dashboard',this)">📊 Resumo</button>
+                <button class="tab" onclick="goTo('vendas',this)">💸 Vendas</button>
+                <button class="tab" onclick="goTo('produtos',this)">📦 Produtos</button>
+                <button class="tab" onclick="goTo('custos',this)">💰 Custos</button>
+                <button class="tab" onclick="goTo('precificacao',this)">🏷️ Precificação</button>
+                <button class="tab" onclick="goTo('financeiro',this)">📈 Financeiro</button>
+            </div>
+            <div class="nav-right">
+                <div class="sync-indicator">
+                    <div class="dot" id="syncDot"></div><span id="syncTxt">Conectando…</span>
                 </div>
+                <button class="btn-logout" onclick="doLogout()">Sair</button>
             </div>
-            <div class="form-grid" style="margin-bottom:14px">
-                <div><label>Data da venda</label><input type="date" id="inData"></div>
-                <div><label>Produto vendido</label><input type="text" id="inProd" placeholder="Ex: Headphone Bluetooth"
-                        list="prodSuggestions"><datalist id="prodSuggestions"></datalist></div>
-                <div><label>Quantidade</label><input type="number" id="inQtd" value="1" min="1"
-                        oninput="updateFormTotal()"></div>
-                <div><label>Valor unitário (R$)</label><input type="number" id="inValor" placeholder="Ex: 89.90"
-                        step="0.01" min="0" oninput="updateFormTotal()"></div>
-            </div>
-            <div style="margin-bottom:18px"><label>Observação (opcional)</label><input type="text" id="inObs"
-                    placeholder="Ex: frete grátis, devolvido..."></div>
-            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-                <button class="btn btn-primary" id="btnSave" onclick="addSale()">✓ Salvar Venda</button>
-                <span id="formTotal" style="font-size:15px;color:var(--muted)"></span>
-            </div>
-        </div>
-        <div class="card">
-            <div
-                style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
-                <div class="card-title" style="margin-bottom:0">Histórico</div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-                    <input type="text" id="searchSale" placeholder="Buscar..."
-                        style="width:180px;padding:7px 12px;font-size:13px" oninput="renderHistory()">
-                    <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇ CSV</button>
-                </div>
-            </div>
-            <div id="histContent">
-                <div class="loading"><span class="spinner"></span>Carregando...</div>
-            </div>
-        </div>
-    </div>
+        </nav>
 
-    <!-- ===== PRECIFICAÇÃO ===== -->
-    <div class="page" id="page-precificacao">
-        <div class="section-header">
-            <div class="section-title">Calculadora de Preço</div>
-        </div>
-        <div class="tip">💡 Informe o custo e o lucro que quer. A calculadora desconta as taxas das plataformas e mostra
-            o preço final a cobrar.</div>
-        <div class="card">
-            <div class="card-title">Dados do produto</div>
-            <div class="form-grid" style="margin-bottom:16px">
-                <div><label>Custo do produto (R$)</label><input type="number" id="cCusto" placeholder="Ex: 40.00"
-                        step="0.01" min="0" oninput="calcPrice()"></div>
-                <div><label>Embalagem (R$)</label><input type="number" id="cEmbal" value="0" step="0.01" min="0"
-                        oninput="calcPrice()"></div>
-                <div><label>Frete que você paga (R$)</label><input type="number" id="cFrete" value="0" step="0.01"
-                        min="0" oninput="calcPrice()"></div>
-                <div><label>Lucro desejado (%)</label><input type="number" id="cLucro" value="30" step="1" min="0"
-                        oninput="calcPrice()"></div>
+        <!-- TOAST -->
+        <div class="toast" id="toast"></div>
+
+        <!-- ===================================================== DASHBOARD ===================================================== -->
+        <div class="page active" id="page-dashboard">
+            <div class="sh">
+                <h2>Resumo Geral</h2>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                    <div class="pills">
+                        <div class="pill active" onclick="setPeriod('hoje',this)">Hoje</div>
+                        <div class="pill" onclick="setPeriod('semana',this)">Semana</div>
+                        <div class="pill" onclick="setPeriod('mes',this)">Mês</div>
+                        <div class="pill" onclick="setPeriod('ano',this)">Ano</div>
+                        <div class="pill" onclick="setPeriod('tudo',this)">Tudo</div>
+                    </div>
+                    <button class="btn btn-ghost btn-sm" onclick="loadAll()">⟳ Atualizar</button>
+                </div>
             </div>
-            <div class="card-title">Plataforma</div>
-            <div class="form-grid" style="margin-bottom:16px">
-                <div><label>Plataforma</label>
-                    <select id="cPlat" onchange="updateFees()">
-                        <option value="ml_classico">Mercado Livre — Clássico (16%)</option>
-                        <option value="ml_premium">Mercado Livre — Premium (19%)</option>
-                        <option value="sh">Shopee (20%)</option>
-                        <option value="custom">Personalizado</option>
+
+            <div class="kpi-grid" id="kpiGrid">
+                <div class="kpi">
+                    <div class="kpi-label">💰 Receita Bruta</div>
+                    <div class="kpi-val green" id="k-bruto">—</div>
+                    <div class="kpi-sub" id="k-bruto-s"></div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-label">✅ Receita Líquida</div>
+                    <div class="kpi-val green" id="k-liq">—</div>
+                    <div class="kpi-sub">após taxas</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-label">📦 Pedidos</div>
+                    <div class="kpi-val" id="k-ped">—</div>
+                    <div class="kpi-sub" id="k-ped-s"></div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-label">🎯 Ticket Médio</div>
+                    <div class="kpi-val" id="k-tick">—</div>
+                    <div class="kpi-sub">por pedido</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-label">⭐ Mercado Livre</div>
+                    <div class="kpi-val" id="k-ml">—</div>
+                    <div class="kpi-sub" id="k-ml-s"></div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-label">🛒 Shopee</div>
+                    <div class="kpi-val" id="k-sh">—</div>
+                    <div class="kpi-sub" id="k-sh-s"></div>
+                </div>
+            </div>
+
+            <div class="charts-2col">
+                <div class="card">
+                    <div class="card-title">Receita diária — últimos 30 dias</div>
+                    <div class="chart-box" style="height:220px"><canvas id="chartDiario" role="img"
+                            aria-label="Receita diária"></canvas></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Por plataforma</div>
+                    <div class="chart-box" style="height:160px"><canvas id="chartPlat" role="img"
+                            aria-label="Por plataforma"></canvas></div>
+                    <div id="platLeg" style="margin-top:12px;display:flex;flex-direction:column;gap:6px;font-size:12px">
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-2col">
+                <div class="card">
+                    <div class="card-title">Top 5 Produtos (receita)</div>
+                    <div class="chart-box" style="height:180px"><canvas id="chartTopProd" role="img"
+                            aria-label="Top produtos"></canvas></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Qtd. vendida por produto</div>
+                    <div class="chart-box" style="height:180px"><canvas id="chartQtdProd" role="img"
+                            aria-label="Quantidade por produto"></canvas></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Últimas 10 vendas</div>
+                <div id="recentVendas">
+                    <div class="loading-box"><span class="spin"></span>Carregando…</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================================================== VENDAS ===================================================== -->
+        <div class="page" id="page-vendas">
+            <div class="sh">
+                <h2>Vendas</h2>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <button class="btn btn-primary" onclick="openModalVenda(null)">＋ Nova Venda</button>
+                    <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇ Exportar CSV</button>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom:16px">
+                <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+                    <div class="search-wrap"><input type="text" id="searchVenda" placeholder="Buscar…"
+                            oninput="renderTabelaVendas()"></div>
+                    <select id="filtPlat" style="width:160px" onchange="renderTabelaVendas()">
+                        <option value="">Todas plataformas</option>
+                        <option value="ml">Mercado Livre</option>
+                        <option value="sh">Shopee</option>
+                        <option value="outros">Outros</option>
+                    </select>
+                    <input type="month" id="filtMesVenda" onchange="renderTabelaVendas()" style="width:150px">
+                    <div style="margin-left:auto;font-size:13px;color:var(--muted)" id="vendaCount"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div id="tabelaVendas">
+                    <div class="loading-box"><span class="spin"></span>Carregando…</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================================================== PRODUTOS ===================================================== -->
+        <div class="page" id="page-produtos">
+            <div class="sh">
+                <h2>Produtos</h2>
+                <button class="btn btn-primary" onclick="openModalProduto(null)">＋ Novo Produto</button>
+            </div>
+            <div class="card" style="margin-bottom:14px">
+                <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+                    <div class="search-wrap"><input type="text" id="searchProd" placeholder="Buscar produto…"
+                            oninput="renderProdutos()"></div>
+                    <select id="filtEstoque" style="width:160px" onchange="renderProdutos()">
+                        <option value="">Todos os estoques</option>
+                        <option value="zerado">Estoque zerado</option>
+                        <option value="critico">Crítico (≤5)</option>
+                        <option value="ok">Estoque OK</option>
                     </select>
                 </div>
-                <div><label>Taxa da plataforma (%)</label><input type="number" id="cTaxa" value="16" step="0.1" min="0"
-                        max="100" oninput="calcPrice()"></div>
-                <div><label>Imposto / IR (%)</label><input type="number" id="cImposto" value="0" step="0.1" min="0"
-                        oninput="calcPrice()"></div>
-                <div><label>Outros custos (R$)</label><input type="number" id="cOutros" value="0" step="0.01" min="0"
-                        oninput="calcPrice()"></div>
             </div>
-            <div class="calc-result" id="calcResult">
-                <div style="color:var(--muted);font-size:14px">Preencha os campos acima para ver o resultado.</div>
+            <div id="prodGrid" class="prod-grid"></div>
+        </div>
+
+        <!-- ===================================================== CUSTOS ===================================================== -->
+        <div class="page" id="page-custos">
+            <div class="sh">
+                <h2>Custos</h2>
+                <button class="btn btn-primary" onclick="openModalCusto(null)">＋ Novo Custo</button>
+            </div>
+
+            <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
+                <div class="kpi">
+                    <div class="kpi-label">📅 Este mês</div>
+                    <div class="kpi-val red" id="ck-mes">—</div>
+                    <div class="kpi-sub">total de custos</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-label">📦 Embalagens</div>
+                    <div class="kpi-val" id="ck-emb">—</div>
+                    <div class="kpi-sub" id="ck-emb-s"></div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-label">🏷️ Etiquetas</div>
+                    <div class="kpi-val" id="ck-eti">—</div>
+                    <div class="kpi-sub" id="ck-eti-s"></div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-label">📣 Marketing</div>
+                    <div class="kpi-val" id="ck-mkt">—</div>
+                    <div class="kpi-sub"></div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-label">🚚 Frete</div>
+                    <div class="kpi-val" id="ck-fret">—</div>
+                    <div class="kpi-sub"></div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-label">🔒 Fixos</div>
+                    <div class="kpi-val" id="ck-fix">—</div>
+                    <div class="kpi-sub">aluguel, etc.</div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom:14px">
+                <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+                    <div class="search-wrap"><input type="text" id="searchCusto" placeholder="Buscar custo…"
+                            oninput="renderTabelaCustos()"></div>
+                    <select id="filtCatCusto" style="width:160px" onchange="renderTabelaCustos()">
+                        <option value="">Todas categorias</option>
+                        <option value="embalagem">Embalagem</option>
+                        <option value="etiqueta">Etiqueta</option>
+                        <option value="marketing">Marketing</option>
+                        <option value="frete">Frete</option>
+                        <option value="fixo">Fixo</option>
+                        <option value="outros">Outros</option>
+                    </select>
+                    <input type="month" id="filtMesCusto" onchange="renderTabelaCustos()" style="width:150px">
+                </div>
+            </div>
+            <div class="card">
+                <div id="tabelaCustos">
+                    <div class="loading-box"><span class="spin"></span>Carregando…</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================================================== PRECIFICAÇÃO ===================================================== -->
+        <div class="page" id="page-precificacao">
+            <div class="sh">
+                <h2>Calculadora de Preço</h2>
+            </div>
+
+            <div class="tip">💡 Informe o custo e o lucro desejado. A calculadora desconta as taxas da plataforma e
+                mostra exatamente qual preço cobrar e qual será seu lucro real.</div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+                <!-- COLUNA ESQUERDA — inputs -->
+                <div style="display:flex;flex-direction:column;gap:14px">
+
+                    <div class="card">
+                        <div class="card-title">📦 Custos do produto</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Custo do produto (R$) *</label>
+                                <input type="number" id="cCusto" placeholder="40.00" step="0.01" min="0"
+                                    oninput="calcPrice()">
+                            </div>
+                            <div class="form-group">
+                                <label>Embalagem (R$)</label>
+                                <input type="number" id="cEmbal" value="0" step="0.01" min="0" oninput="calcPrice()">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Frete que você paga (R$)</label>
+                                <input type="number" id="cFrete" value="0" step="0.01" min="0" oninput="calcPrice()">
+                            </div>
+                            <div class="form-group">
+                                <label>Outros custos (R$)</label>
+                                <input type="number" id="cOutros" value="0" step="0.01" min="0" oninput="calcPrice()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">🏪 Plataforma e taxas</div>
+                        <div class="form-row">
+                            <div class="form-group" style="grid-column:1/-1">
+                                <label>Plataforma / Tipo de anúncio</label>
+                                <select id="cPlat" onchange="updateCalcFees()">
+                                    <option value="ml_classico">⭐ Mercado Livre — Clássico (16%)</option>
+                                    <option value="ml_premium">⭐ Mercado Livre — Premium (19%)</option>
+                                    <option value="sh_normal">🛒 Shopee — Normal (20%)</option>
+                                    <option value="sh_ads">🛒 Shopee — +Ads (23%)</option>
+                                    <option value="outros">🌐 Outros (0%)</option>
+                                    <option value="custom">✏️ Taxa personalizada…</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Taxa da plataforma (%)</label>
+                                <input type="number" id="cTaxa" value="16" step="0.1" min="0" max="100"
+                                    oninput="calcPrice()">
+                            </div>
+                            <div class="form-group">
+                                <label>Imposto / IR (%)</label>
+                                <input type="number" id="cImposto" value="0" step="0.1" min="0" oninput="calcPrice()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">🎯 Lucro desejado</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Margem de lucro (%)</label>
+                                <input type="number" id="cLucro" value="30" step="1" min="0" oninput="calcPrice()">
+                            </div>
+                            <div class="form-group">
+                                <label>Ou: preço de venda (R$)</label>
+                                <input type="number" id="cPrecoForce" placeholder="Deixe vazio p/ calcular" step="0.01"
+                                    min="0" oninput="calcPrice()">
+                            </div>
+                        </div>
+                        <div style="font-size:11px;color:var(--muted)">Se preencher o preço de venda, a calculadora
+                            mostra qual será o lucro real.</div>
+                    </div>
+
+                </div>
+
+                <!-- COLUNA DIREITA — resultado -->
+                <div>
+                    <div class="card" id="calcResultCard" style="position:sticky;top:76px">
+                        <div class="card-title">📊 Resultado</div>
+                        <div id="calcResult" style="color:var(--muted);font-size:13px">Preencha o custo do produto para
+                            calcular.</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- TABELA COMPARATIVA -->
+            <div class="card" style="margin-top:16px">
+                <div class="card-title">📋 Comparativo entre plataformas</div>
+                <div id="calcComparativo" style="color:var(--muted);font-size:13px">Preencha o custo para ver a
+                    comparação.</div>
+            </div>
+        </div>
+
+        <!-- ===================================================== FINANCEIRO ===================================================== -->
+        <div class="page" id="page-financeiro">
+            <div class="sh">
+                <h2>Resumo Financeiro</h2>
+                <div class="month-nav">
+                    <button onclick="changeFinMes(-1)">‹</button>
+                    <span id="finMesLabel"></span>
+                    <button onclick="changeFinMes(1)">›</button>
+                </div>
+            </div>
+
+            <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:20px">
+                <div class="kpi">
+                    <div class="kpi-label">💰 Faturamento Bruto</div>
+                    <div class="kpi-val green" id="f-bruto">—</div>
+                    <div class="kpi-sub">receita total de vendas</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-label">📉 Taxas Plataformas</div>
+                    <div class="kpi-val red" id="f-taxas">—</div>
+                    <div class="kpi-sub">ML + Shopee</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-label">💳 Receita Líquida</div>
+                    <div class="kpi-val green" id="f-liq">—</div>
+                    <div class="kpi-sub">após taxas</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-label">🔴 Total de Custos</div>
+                    <div class="kpi-val red" id="f-custos">—</div>
+                    <div class="kpi-sub">todos os gastos</div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-label">✨ Lucro Líquido</div>
+                    <div class="kpi-val" id="f-lucro" style="font-size:22px">—</div>
+                    <div class="kpi-sub" id="f-lucro-s"></div>
+                </div>
+                <div class="kpi">
+                    <div class="kpi-label">📊 Margem Líquida</div>
+                    <div class="kpi-val" id="f-margem">—</div>
+                    <div class="kpi-sub">sobre faturamento</div>
+                </div>
+            </div>
+
+            <div class="charts-2col" style="margin-bottom:18px">
+                <div class="card">
+                    <div class="card-title">Faturamento vs Custos — últimos 6 meses</div>
+                    <div class="chart-box" style="height:200px"><canvas id="chartFinMeses" role="img"
+                            aria-label="Faturamento vs custos por mês"></canvas></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Composição dos custos</div>
+                    <div class="chart-box" style="height:160px"><canvas id="chartCustoCat" role="img"
+                            aria-label="Custos por categoria"></canvas></div>
+                    <div id="custoCatLeg"
+                        style="margin-top:10px;font-size:12px;display:flex;flex-direction:column;gap:5px"></div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom:14px" id="finDRE">
+                <div class="card-title">DRE simplificado — <span id="finMesNome"></span></div>
+                <div id="finDREContent"></div>
+            </div>
+
+            <div class="card" id="finDistCard">
+                <div class="card-title">💡 Distribuição do Lucro Líquido</div>
+                <div id="finDistContent"></div>
             </div>
         </div>
     </div>
 
-    <!-- ===== PRODUTOS ===== -->
-    <div class="page" id="page-produtos">
-        <div class="section-header">
-            <div class="section-title">Meus Produtos</div>
-            <button class="btn btn-primary" onclick="document.getElementById('addProdForm').style.display='block'">+
-                Adicionar</button>
-        </div>
-        <div class="card" id="addProdForm" style="display:none;margin-bottom:20px">
-            <div class="card-title">Novo produto</div>
-            <div class="form-grid" style="margin-bottom:14px">
-                <div><label>Nome</label><input type="text" id="pNome" placeholder="Ex: Headphone Bluetooth Pro"></div>
-                <div><label>Preço de venda (R$)</label><input type="number" id="pPreco" step="0.01" min="0"
-                        placeholder="89.90"></div>
-                <div><label>Custo (R$)</label><input type="number" id="pCusto" step="0.01" min="0" placeholder="40.00">
+    <!-- ===================================================== MODAL VENDA ===================================================== -->
+    <div class="modal-backdrop" id="modalVenda">
+        <div class="modal" style="max-width:640px">
+            <div class="modal-header">
+                <div class="modal-title" id="mvTitle">Nova Venda</div>
+                <button class="modal-close" onclick="closeModal('modalVenda')">✕</button>
+            </div>
+
+            <div class="form-group" style="margin-bottom:16px">
+                <label>Plataforma</label>
+                <div class="plat-toggle">
+                    <div class="plat-opt ml on" id="mvML" onclick="setVendaPlat('ml')">
+                        <div class="po-check">✓</div>
+                        <div class="po-icon">⭐</div>
+                        <div class="po-label">Mercado Livre</div>
+                    </div>
+                    <div class="plat-opt sh" id="mvSH" onclick="setVendaPlat('sh')">
+                        <div class="po-check">✓</div>
+                        <div class="po-icon">🛒</div>
+                        <div class="po-label">Shopee</div>
+                    </div>
+                    <div class="plat-opt outros" id="mvOUT" onclick="setVendaPlat('outros')">
+                        <div class="po-check">✓</div>
+                        <div class="po-icon">🌐</div>
+                        <div class="po-label">Outros</div>
+                    </div>
                 </div>
-                <div><label>Estoque atual</label><input type="number" id="pEstoque" min="0" value="0"></div>
             </div>
-            <div style="display:flex;gap:10px">
-                <button class="btn btn-primary" onclick="addProduct()">Salvar</button>
-                <button class="btn btn-ghost"
-                    onclick="document.getElementById('addProdForm').style.display='none'">Cancelar</button>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Data da venda *</label>
+                    <input type="date" id="mvData">
+                </div>
+                <div class="form-group">
+                    <label>Tipo de anúncio</label>
+                    <select id="mvTaxaTipo" onchange="calcVendaLiq()">
+                        <option value="ml_classico">ML Clássico (16%)</option>
+                        <option value="ml_premium">ML Premium (19%)</option>
+                        <option value="sh_normal">Shopee Normal (20%)</option>
+                        <option value="sh_ads">Shopee +Ads (23%)</option>
+                        <option value="outros">Outros (0%)</option>
+                        <option value="custom">Personalizado…</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group" style="grid-column:1/-1">
+                    <label>Produto *</label>
+                    <select id="mvProdSel" onchange="onMvProdChange()">
+                        <option value="">— Selecionar produto —</option>
+                        <option value="__manual">✏️ Digitar manualmente</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="mvProdManualWrap" style="display:none" class="form-row">
+                <div class="form-group" style="grid-column:1/-1">
+                    <label>Nome do produto (manual) *</label>
+                    <input type="text" id="mvProdManual" placeholder="Ex: Headphone Bluetooth Pro">
+                </div>
+            </div>
+
+            <div id="mvVarWrap" style="display:none" class="form-row">
+                <div class="form-group" style="grid-column:1/-1">
+                    <label>Variação</label>
+                    <select id="mvVarSel">
+                        <option value="">— Sem variação específica —</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Quantidade *</label>
+                    <input type="number" id="mvQtd" value="1" min="1" oninput="calcVendaLiq()">
+                </div>
+                <div class="form-group">
+                    <label>Valor unitário (R$) *</label>
+                    <input type="number" id="mvValUnit" step="0.01" min="0" placeholder="89.90"
+                        oninput="calcVendaLiq()">
+                </div>
+                <div class="form-group" id="mvTaxaCustomWrap" style="display:none">
+                    <label>Taxa personalizada (%)</label>
+                    <input type="number" id="mvTaxaCustom" value="0" step="0.1" min="0" max="100"
+                        oninput="calcVendaLiq()">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Desconto (R$)</label>
+                    <input type="number" id="mvDesconto" value="0" step="0.01" min="0" oninput="calcVendaLiq()">
+                </div>
+                <div class="form-group">
+                    <label>Custo do frete (R$) <span style="font-weight:400;font-size:10px;color:var(--muted)">o que
+                            você pagou</span></label>
+                    <input type="number" id="mvCustoFrete" value="0" step="0.01" min="0" placeholder="0.00"
+                        oninput="calcVendaLiq()">
+                </div>
+                <div class="form-group">
+                    <label>Observação</label>
+                    <input type="text" id="mvObs" placeholder="Opcional…">
+                </div>
+            </div>
+
+            <div
+                style="display:flex;align-items:center;gap:10px;margin-bottom:16px;background:var(--bg);border-radius:10px;padding:11px 14px;border:1.5px solid var(--border)">
+                <input type="checkbox" id="mvFreteGratis" onchange="calcVendaLiq()"
+                    style="width:auto;accent-color:#15803d;width:16px;height:16px;cursor:pointer">
+                <label for="mvFreteGratis" style="font-size:13px;font-weight:600;cursor:pointer;user-select:none">
+                    🚚 Frete grátis pro cliente <span style="font-size:11px;font-weight:400;color:var(--muted)">(o
+                        cliente não pagou frete)</span>
+                </label>
+            </div>
+
+            <div id="mvPreview"
+                style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;display:none;border:1px solid var(--border)">
+                <div
+                    style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:10px">
+                    Prévia do resultado</div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span
+                        style="color:var(--muted)">Receita bruta</span><span id="mvBruto">—</span></div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span
+                        style="color:var(--muted)">Taxa da plataforma</span><span id="mvTaxaVal"
+                        style="color:var(--red)">—</span></div>
+                <div id="mvFreteRow" style="display:flex;justify-content:space-between;margin-bottom:6px;display:none">
+                    <span style="color:var(--muted)">Custo do frete</span><span id="mvFreteVal"
+                        style="color:var(--red)">—</span></div>
+                <div style="height:1px;background:var(--border);margin:8px 0"></div>
+                <div style="display:flex;justify-content:space-between;font-weight:800;font-size:14px"><span>Receita
+                        líquida</span><span id="mvLiq" style="color:var(--green)">—</span></div>
+            </div>
+
+            <div style="display:flex;gap:10px;justify-content:flex-end">
+                <button class="btn btn-ghost" onclick="closeModal('modalVenda')">Cancelar</button>
+                <button class="btn btn-primary" id="mvBtn" onclick="salvarVenda()">💾 Salvar Venda</button>
             </div>
         </div>
-        <div id="prodContent">
-            <div class="loading"><span class="spinner"></span>Carregando...</div>
+    </div>
+
+    <!-- ===================================================== MODAL PRODUTO ===================================================== -->
+    <div class="modal-backdrop" id="modalProduto">
+        <div class="modal" style="max-width:640px">
+            <div class="modal-header">
+                <div class="modal-title" id="mpTitle">Novo Produto</div>
+                <button class="modal-close" onclick="closeModal('modalProduto')">✕</button>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group" style="grid-column:1/-1">
+                    <label>Nome do produto *</label>
+                    <input type="text" id="mpNome" placeholder="Ex: Headphone Bluetooth Pro">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Preço de venda (R$)</label>
+                    <input type="number" id="mpPreco" step="0.01" min="0" placeholder="89.90">
+                </div>
+                <div class="form-group">
+                    <label>Custo unitário (R$)</label>
+                    <input type="number" id="mpCusto" step="0.01" min="0" placeholder="40.00" oninput="calcMpMargem()">
+                </div>
+                <div class="form-group">
+                    <label>Estoque atual</label>
+                    <input type="number" id="mpEstoque" min="0" value="0">
+                </div>
+            </div>
+            <div id="mpMargemWrap"
+                style="display:none;background:var(--green-bg);border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:12px">
+                Margem bruta estimada: <strong id="mpMargem" class="green"></strong>
+            </div>
+
+            <div
+                style="display:flex;align-items:center;gap:10px;margin-bottom:14px;background:var(--bg);border-radius:10px;padding:11px 14px;border:1.5px solid var(--border)">
+                <input type="checkbox" id="mpFreteGratis"
+                    style="width:16px;height:16px;accent-color:#15803d;cursor:pointer">
+                <label for="mpFreteGratis" style="font-size:13px;font-weight:600;cursor:pointer;user-select:none">
+                    🚚 Este produto costuma ter frete grátis pro cliente
+                </label>
+            </div>
+
+            <div class="form-group" style="margin-bottom:14px">
+                <label>Descrição (opcional)</label>
+                <textarea id="mpDesc" placeholder="Detalhes do produto…" style="min-height:55px"></textarea>
+            </div>
+
+            <hr class="sep">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                <div style="font-size:13px;font-weight:700">Variações <span
+                        style="font-size:11px;color:var(--muted);font-weight:400">(ex: cores, tamanhos)</span></div>
+                <button class="btn btn-ghost btn-sm" onclick="addVarRow()">＋ Adicionar</button>
+            </div>
+            <div id="varRows" class="var-list"></div>
+
+            <hr class="sep">
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+                <button class="btn btn-ghost" onclick="closeModal('modalProduto')">Cancelar</button>
+                <button class="btn btn-primary" id="mpBtn" onclick="salvarProduto()">💾 Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================== MODAL CUSTO ===================================================== -->
+    <div class="modal-backdrop" id="modalCusto">
+        <div class="modal" style="max-width:560px">
+            <div class="modal-header">
+                <div class="modal-title" id="mcTitle">Novo Custo</div>
+                <button class="modal-close" onclick="closeModal('modalCusto')">✕</button>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group" style="grid-column:1/-1">
+                    <label>Descrição *</label>
+                    <input type="text" id="mcNome" placeholder="Ex: Caixinhas de papelão 20x20">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Categoria *</label>
+                    <select id="mcCat">
+                        <option value="embalagem">📦 Embalagem</option>
+                        <option value="etiqueta">🏷️ Etiqueta</option>
+                        <option value="marketing">📣 Marketing</option>
+                        <option value="frete">🚚 Frete</option>
+                        <option value="fixo">🔒 Fixo (aluguel, etc.)</option>
+                        <option value="outros">🗂️ Outros</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Data *</label>
+                    <input type="date" id="mcData">
+                </div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+                <input type="checkbox" id="mcTemQtd" checked onchange="toggleMcQtd()"
+                    style="width:auto;accent-color:var(--text)">
+                <label for="mcTemQtd" style="font-size:13px;text-transform:none;letter-spacing:0;cursor:pointer">Tem
+                    quantidade (ex: 100 embalagens por R$27)</label>
+            </div>
+
+            <div id="mcQtdWrap" class="form-row">
+                <div class="form-group">
+                    <label>Quantidade</label>
+                    <input type="number" id="mcQtd" value="1" min="0.001" step="0.001" oninput="calcMcUnit('qtd')">
+                </div>
+                <div class="form-group">
+                    <label>Valor unitário (R$)</label>
+                    <input type="number" id="mcUnit" step="0.0001" min="0" placeholder="0.27"
+                        oninput="calcMcUnit('unit')" style="font-weight:700;color:var(--green)">
+                </div>
+                <div class="form-group">
+                    <label>Valor total pago (R$) *</label>
+                    <input type="number" id="mcTotal" step="0.01" min="0" placeholder="27.00"
+                        oninput="calcMcUnit('total')">
+                </div>
+            </div>
+            <div id="mcCalcHint" style="font-size:11px;color:var(--muted);margin:-8px 0 10px;display:none">
+                💡 Preencha qualquer dois campos e o terceiro é calculado automaticamente
+            </div>
+
+            <div id="mcSemQtdWrap" style="display:none" class="form-row">
+                <div class="form-group" style="grid-column:1/-1">
+                    <label>Valor (R$) *</label>
+                    <input type="number" id="mcTotalSemQtd" step="0.01" min="0" placeholder="150.00">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Observação</label>
+                    <input type="text" id="mcObs" placeholder="Opcional…">
+                </div>
+                <div class="form-group" style="justify-content:flex-end;padding-top:18px">
+                    <label
+                        style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;letter-spacing:0">
+                        <input type="checkbox" id="mcRecorrente" style="width:auto;accent-color:var(--text)"> Custo
+                        recorrente mensal
+                    </label>
+                </div>
+            </div>
+
+            <div style="display:flex;gap:10px;justify-content:flex-end">
+                <button class="btn btn-ghost" onclick="closeModal('modalCusto')">Cancelar</button>
+                <button class="btn btn-primary" id="mcBtn" onclick="salvarCusto()">💾 Salvar</button>
+            </div>
         </div>
     </div>
 
     <script>
-        /* ============================================================
-           SUPABASE CONFIG — troque aqui se precisar mudar as chaves
-           ============================================================ */
-        const SUPABASE_URL = 'https://zhkjngycdocuvrcktjvy.supabase.co'
-        const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpoa2puZ3ljZG9jdXZyY2t0anZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMTk2NzEsImV4cCI6MjA5MjU5NTY3MX0.nDw_8Nvh_LCgHkDWEYUMZCsq7u44MVF8rLecP2JKnck'
+        /* ================================================================
+           CONFIG SUPABASE
+           ================================================================ */
+        const SB_URL = 'https://zhkjngycdocuvrcktjvy.supabase.co'
+        const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpoa2puZ3ljZG9jdXZyY2t0anZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMTk2NzEsImV4cCI6MjA5MjU5NTY3MX0.nDw_8Nvh_LCgHkDWEYUMZCsq7u44MVF8rLecP2JKnck'
 
         const { createClient } = supabase
-        const db = createClient(SUPABASE_URL, SUPABASE_ANON)
+        const db = createClient(SB_URL, SB_ANON)
 
-        /* ============================================================
-           ESTADO
-           ============================================================ */
-        let allSales = []
-        let allProducts = []
+        /* ================================================================
+           ESTADO GLOBAL
+           ================================================================ */
+        let allVendas = []
+        let allProdutos = []
+        let allVars = []
+        let allCustos = []
+        let editVendaId = null
+        let editProdId = null
+        let editCustoId = null
         let currentPlat = 'ml'
-        let currentPeriod = 'hoje'
-        let chartDays, chartPlat
+        let currentPeriod = 'mes'
+        let finMes = new Date()
+        finMes.setDate(1)
 
-        /* ============================================================
+        /* charts */
+        let cDiario, cPlat, cTopProd, cQtdProd, cFinMeses, cCustoCat
+
+        const TAXAS = { ml_classico: 0.16, ml_premium: 0.19, sh_normal: 0.20, sh_ads: 0.23, outros: 0, custom: 0 }
+        const CAT_COLORS = { embalagem: '#f59e0b', etiqueta: '#8b5cf6', marketing: '#ec4899', frete: '#3b82f6', fixo: '#ef4444', outros: '#6b7280' }
+
+        /* ================================================================
            HELPERS
-           ============================================================ */
-        const fmtMoney = v => 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-        const todayStr = () => new Date().toISOString().slice(0, 10)
+           ================================================================ */
+        const R$ = v => 'R$ ' + Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+        const pct = v => Number(v || 0).toFixed(1) + '%'
+        const todayISO = () => new Date().toISOString().slice(0, 10)
+        const parseNum = id => parseFloat(document.getElementById(id)?.value) || 0
+        const val = id => (document.getElementById(id)?.value || '').trim()
+        const el = id => document.getElementById(id)
 
-        function toast(msg, isErr = false) {
-            const t = document.getElementById('toast')
-            t.textContent = msg
-            t.className = 'toast show' + (isErr ? ' err' : '')
+        function toast(msg, type = 'ok') {
+            const t = el('toast'); t.textContent = msg
+            t.className = `toast show ${type}`
             setTimeout(() => t.className = 'toast', 2800)
         }
+        function setSync(s) { // 'ok','err','loading'
+            el('syncDot').className = 'dot ' + (s === 'ok' ? '' : 'err ') + (s === 'loading' ? 'loading' : '')
+            el('syncTxt').textContent = s === 'ok' ? 'Conectado' : s === 'loading' ? 'Sincronizando…' : 'Sem conexão'
+        }
+        function loadingBox(id) { el(id).innerHTML = '<div class="loading-box"><span class="spin"></span>Carregando…</div>' }
 
-        function setSync(ok) {
-            const dot = document.getElementById('syncDot')
-            const span = document.getElementById('syncStatus')
-            dot.className = 'sync-dot' + (ok ? '' : ' err')
-            span.innerHTML = (ok ? '<span class="sync-dot"></span> Conectado' : '<span class="sync-dot err"></span> Sem conexão')
+        function dateLabel(d) {
+            if (!d) return '—'
+            const [y, m, dd] = (d + '').split('-')
+            return `${dd}/${m}/${y}`
+        }
+        function mesLabel(d) {
+            return new Date(d + 'T12:00:00').toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
         }
 
-        function dateLabel(d) { const [y, m, dd] = d.split('-'); return dd + '/' + m + '/' + y }
+        /* ================================================================
+           AUTH
+           ================================================================ */
+        async function doLogin() {
+            const email = val('loginEmail'), pass = val('loginPass')
+            if (!email || !pass) { showLoginErr('Preencha e-mail e senha.'); return }
+            const btn = el('btnLogin'); btn.disabled = true; btn.textContent = 'Entrando…'
+            const { error } = await db.auth.signInWithPassword({ email, password: pass })
+            btn.disabled = false; btn.textContent = 'Entrar'
+            if (error) { showLoginErr('E-mail ou senha incorretos.'); return }
+            startApp()
+        }
+        function showLoginErr(msg) { const e = el('loginErr'); e.textContent = msg; e.style.display = 'block' }
 
-        /* ============================================================
-           CARREGAR DADOS
-           ============================================================ */
-        async function loadAll() {
-            try {
-                const [{ data: sales, error: e1 }, { data: prods, error: e2 }] = await Promise.all([
-                    db.from('vendas').select('*').order('data', { ascending: false }).order('id', { ascending: false }),
-                    db.from('produtos').select('*').order('nome')
-                ])
-                if (e1 || e2) throw e1 || e2
-                allSales = sales || []
-                allProducts = prods || []
-                setSync(true)
-                updateDashboard()
-                renderHistory()
-                renderProducts()
-                updateProdSuggestions()
-            } catch (err) {
-                setSync(false)
-                toast('Erro ao conectar com Supabase. Verifique se rodou o SQL.', true)
-                console.error(err)
+        async function doLogout() {
+            await db.auth.signOut()
+            el('app').style.display = 'none'
+            el('loginPage').style.display = 'flex'
+        }
+
+        el('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin() })
+
+        /* ================================================================
+           INIT
+           ================================================================ */
+        async function init() {
+            const { data: { session } } = await db.auth.getSession()
+            if (session) { startApp() } else {
+                el('loginPage').style.display = 'flex'
+                el('app').style.display = 'none'
             }
         }
 
-        /* ============================================================
-           PERÍODO
-           ============================================================ */
+        function startApp() {
+            el('loginPage').style.display = 'none'
+            el('app').style.display = 'block'
+            setDefaults()
+            loadAll()
+        }
+
+        function setDefaults() {
+            el('mvData').value = todayISO()
+            el('mcData').value = todayISO()
+            const ym = new Date().toISOString().slice(0, 7)
+            el('filtMesVenda').value = ym
+            el('filtMesCusto').value = ym
+            updateFinMesLabel()
+        }
+
+        /* ================================================================
+           LOAD ALL
+           ================================================================ */
+        async function loadAll() {
+            setSync('loading')
+            try {
+                const [r1, r2, r3, r4] = await Promise.all([
+                    db.from('vendas').select('*').order('data', { ascending: false }).order('id', { ascending: false }),
+                    db.from('produtos').select('*').order('nome'),
+                    db.from('produto_variacoes').select('*').order('nome'),
+                    db.from('custos').select('*').order('data', { ascending: false }).order('id', { ascending: false })
+                ])
+                if (r1.error || r2.error || r3.error || r4.error) throw r1.error || r2.error || r3.error || r4.error
+                allVendas = r1.data || []
+                allProdutos = r2.data || []
+                allVars = r3.data || []
+                allCustos = r4.data || []
+                setSync('ok')
+                updateDashboard()
+                renderTabelaVendas()
+                renderProdutos()
+                renderTabelaCustos()
+                updateKpiCustos()
+                renderFinanceiro()
+                populateProdSelect()
+            } catch (err) {
+                setSync('err')
+                console.error(err)
+                toast('Erro ao carregar dados. Verifique o SQL.', 'err')
+            }
+        }
+
+        /* ================================================================
+           NAV
+           ================================================================ */
+        function goTo(id, btn) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'))
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
+            el('page-' + id).classList.add('active')
+            btn.classList.add('active')
+        }
+
+        /* ================================================================
+           DASHBOARD
+           ================================================================ */
         function setPeriod(p, btn) {
             currentPeriod = p
-            document.querySelectorAll('.pills .pill').forEach(x => x.classList.remove('active'))
+            document.querySelectorAll('#page-dashboard .pill').forEach(x => x.classList.remove('active'))
             btn.classList.add('active')
             updateDashboard()
         }
@@ -866,321 +2133,865 @@
                 if (currentPeriod === 'hoje') return d >= now
                 if (currentPeriod === 'semana') { const w = new Date(now); w.setDate(w.getDate() - w.getDay()); return d >= w }
                 if (currentPeriod === 'mes') { const m = new Date(now.getFullYear(), now.getMonth(), 1); return d >= m }
+                if (currentPeriod === 'ano') { return d.getFullYear() === now.getFullYear() }
                 return true
             })
         }
 
-        /* ============================================================
-           DASHBOARD
-           ============================================================ */
         function updateDashboard() {
-            const f = filterByPeriod(allSales)
-            const ml = f.filter(s => s.plataforma === 'ml')
-            const sh = f.filter(s => s.plataforma === 'sh')
-            const rec = f.reduce((a, s) => a + Number(s.total), 0)
-            const rML = ml.reduce((a, s) => a + Number(s.total), 0)
-            const rSH = sh.reduce((a, s) => a + Number(s.total), 0)
-            const itens = f.reduce((a, s) => a + s.quantidade, 0)
-            const tick = f.length ? rec / f.length : 0
+            const f = filterByPeriod(allVendas)
+            const ml = f.filter(x => x.plataforma === 'ml')
+            const sh = f.filter(x => x.plataforma === 'sh')
+            const bruto = f.reduce((a, x) => a + Number(x.total), 0)
+            const liq = f.reduce((a, x) => a + Number(x.liquido), 0)
+            const tick = f.length ? bruto / f.length : 0
+            const mlR = ml.reduce((a, x) => a + Number(x.total), 0)
+            const shR = sh.reduce((a, x) => a + Number(x.total), 0)
 
-            document.getElementById('kReceit').textContent = fmtMoney(rec)
-            document.getElementById('kVendas').textContent = f.length
-            document.getElementById('kTicket').textContent = fmtMoney(tick)
-            document.getElementById('kML').textContent = fmtMoney(rML)
-            document.getElementById('kSH').textContent = fmtMoney(rSH)
-            document.getElementById('kItens').textContent = itens
-            document.getElementById('kMLsub').textContent = ml.length + ' pedidos'
-            document.getElementById('kSHsub').textContent = sh.length + ' pedidos'
-            document.getElementById('kVendasSub').textContent = ml.length + ' ML · ' + sh.length + ' Shopee'
+            el('k-bruto').textContent = R$(bruto)
+            el('k-liq').textContent = R$(liq)
+            el('k-ped').textContent = f.length
+            el('k-tick').textContent = R$(tick)
+            el('k-ml').textContent = R$(mlR)
+            el('k-sh').textContent = R$(shR)
+            el('k-bruto-s').textContent = f.length + ' pedidos'
+            el('k-ped-s').textContent = ml.length + ' ML · ' + sh.length + ' Shopee'
+            el('k-ml-s').textContent = ml.length + ' pedidos'
+            el('k-sh-s').textContent = sh.length + ' pedidos'
 
-            // Recent table
-            const rec8 = allSales.slice(0, 8)
-            if (!rec8.length) {
-                document.getElementById('recentContent').innerHTML = '<div class="empty"><div class="empty-icon">📋</div><p>Nenhuma venda ainda. Vá em <strong>Lançar Venda</strong>!</p></div>'
-            } else {
-                document.getElementById('recentContent').innerHTML = `<div class="table-wrap"><table>
-      <thead><tr><th>Data</th><th>Plataforma</th><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Total</th></tr></thead>
-      <tbody>${rec8.map(s => `<tr>
-        <td>${dateLabel(s.data)}</td>
-        <td><span class="plat ${s.plataforma}">${s.plataforma === 'ml' ? '⭐ ML' : '🛒 Shopee'}</span></td>
-        <td>${s.produto}</td><td>${s.quantidade}</td>
-        <td>${fmtMoney(s.valor_unit)}</td>
-        <td style="font-weight:700;color:var(--green)">${fmtMoney(s.total)}</td>
-      </tr>`).join('')}</tbody></table></div>`
-            }
-
-            updateCharts(rML, rSH)
+            buildChartDiario()
+            buildChartPlat(mlR, shR, f.filter(x => x.plataforma === 'outros').reduce((a, x) => a + Number(x.total), 0))
+            buildChartTopProd(f)
+            buildRecentVendas()
         }
 
-        /* ============================================================
-           CHARTS
-           ============================================================ */
-        function updateCharts(totalML, totalSH) {
-            const days = {}
-            for (let i = 13; i >= 0; i--) {
+        function buildChartDiario() {
+            const dias = {}
+            for (let i = 29; i >= 0; i--) {
                 const d = new Date(); d.setDate(d.getDate() - i)
                 const k = d.toISOString().slice(0, 10)
-                days[k] = { label: d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }), ml: 0, sh: 0 }
+                dias[k] = { label: d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }), ml: 0, sh: 0, outros: 0 }
             }
-            allSales.forEach(s => { if (days[s.data]) days[s.data][s.plataforma] += Number(s.total) })
-            const dv = Object.values(days)
-            const labels = dv.map(d => d.label)
-            const dataML = dv.map(d => +d.ml.toFixed(2))
-            const dataSH = dv.map(d => +d.sh.toFixed(2))
-
-            if (chartDays) {
-                chartDays.data.labels = labels
-                chartDays.data.datasets[0].data = dataML
-                chartDays.data.datasets[1].data = dataSH
-                chartDays.update()
-            } else {
-                chartDays = new Chart(document.getElementById('chartDays'), {
-                    type: 'bar',
-                    data: {
-                        labels, datasets: [
-                            { label: 'ML', data: dataML, backgroundColor: 'rgba(255,229,7,.8)', borderRadius: 5, stack: 's' },
-                            { label: 'Shopee', data: dataSH, backgroundColor: 'rgba(238,77,45,.8)', borderRadius: 5, stack: 's' }
-                        ]
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-                        scales: {
-                            x: { grid: { display: false }, ticks: { color: '#aaa', font: { size: 10 } } },
-                            y: { grid: { color: 'rgba(0,0,0,.05)' }, ticks: { color: '#aaa', font: { size: 10 }, callback: v => 'R$' + v.toLocaleString('pt-BR') } }
-                        }
+            allVendas.forEach(v => { if (dias[v.data]) dias[v.data][v.plataforma] += Number(v.liquido) })
+            const dv = Object.values(dias)
+            const ds = [
+                { label: 'ML', data: dv.map(x => +x.ml.toFixed(2)), backgroundColor: 'rgba(255,229,7,.8)', borderRadius: 3, stack: 's' },
+                { label: 'Shopee', data: dv.map(x => +x.sh.toFixed(2)), backgroundColor: 'rgba(238,77,45,.8)', borderRadius: 3, stack: 's' },
+                { label: 'Outros', data: dv.map(x => +x.outros.toFixed(2)), backgroundColor: 'rgba(99,102,241,.8)', borderRadius: 3, stack: 's' },
+            ]
+            if (cDiario) { cDiario.data.labels = dv.map(x => x.label); ds.forEach((d, i) => cDiario.data.datasets[i].data = d.data); cDiario.update(); return }
+            cDiario = new Chart(el('chartDiario'), {
+                type: 'bar', data: { labels: dv.map(x => x.label), datasets: ds },
+                options: {
+                    responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#aaa', font: { size: 9 }, maxTicksLimit: 15 } },
+                        y: { grid: { color: 'rgba(0,0,0,.05)' }, ticks: { color: '#aaa', font: { size: 9 }, callback: v => 'R$' + v.toLocaleString('pt-BR') } }
                     }
-                })
-            }
-
-            const total = totalML + totalSH
-            const pct = v => total > 0 ? ((v / total) * 100).toFixed(0) + '%' : '0%'
-            if (chartPlat) {
-                chartPlat.data.datasets[0].data = [+totalML.toFixed(2), +totalSH.toFixed(2)]
-                chartPlat.update()
-            } else {
-                chartPlat = new Chart(document.getElementById('chartPlat'), {
-                    type: 'doughnut',
-                    data: { labels: ['ML', 'Shopee'], datasets: [{ data: [+totalML.toFixed(2), +totalSH.toFixed(2)], backgroundColor: ['#ffe507', '#ee4d2d'], borderWidth: 0, hoverOffset: 4 }] },
-                    options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { display: false } } }
-                })
-            }
-            document.getElementById('platLegend').innerHTML = `
-    <div style="display:flex;align-items:center;gap:8px"><div style="width:10px;height:10px;border-radius:2px;background:#ffe507"></div><span style="color:var(--muted)">Mercado Livre</span><strong style="margin-left:auto">${pct(totalML)}</strong></div>
-    <div style="display:flex;align-items:center;gap:8px"><div style="width:10px;height:10px;border-radius:2px;background:#ee4d2d"></div><span style="color:var(--muted)">Shopee</span><strong style="margin-left:auto">${pct(totalSH)}</strong></div>`
-        }
-
-        /* ============================================================
-           ADICIONAR VENDA
-           ============================================================ */
-        function selectPlat(p) {
-            currentPlat = p
-            document.getElementById('optML').classList.toggle('selected', p === 'ml')
-            document.getElementById('optSH').classList.toggle('selected', p === 'sh')
-        }
-
-        function updateFormTotal() {
-            const q = parseFloat(document.getElementById('inQtd').value) || 1
-            const v = parseFloat(document.getElementById('inValor').value) || 0
-            document.getElementById('formTotal').textContent = v > 0 ? 'Total: ' + fmtMoney(q * v) : ''
-        }
-
-        async function addSale() {
-            const data = document.getElementById('inData').value
-            const prod = document.getElementById('inProd').value.trim()
-            const qtd = parseInt(document.getElementById('inQtd').value) || 1
-            const val = parseFloat(document.getElementById('inValor').value)
-            const obs = document.getElementById('inObs').value.trim()
-
-            if (!data) { toast('⚠️ Informe a data', true); return }
-            if (!prod) { toast('⚠️ Informe o produto', true); return }
-            if (!val || val <= 0) { toast('⚠️ Informe o valor', true); return }
-
-            const btn = document.getElementById('btnSave')
-            btn.disabled = true; btn.textContent = 'Salvando...'
-
-            const { error } = await db.from('vendas').insert({
-                data, plataforma: currentPlat, produto: prod,
-                quantidade: qtd, valor_unit: val, total: +(qtd * val).toFixed(2), observacao: obs
+                }
             })
-
-            btn.disabled = false; btn.textContent = '✓ Salvar Venda'
-
-            if (error) { toast('Erro ao salvar: ' + error.message, true); return }
-
-            document.getElementById('inProd').value = ''
-            document.getElementById('inQtd').value = '1'
-            document.getElementById('inValor').value = ''
-            document.getElementById('inObs').value = ''
-            document.getElementById('inData').value = todayStr()
-            document.getElementById('formTotal').textContent = ''
-
-            toast('✓ Venda salva!')
-            await loadAll()
         }
 
-        /* ============================================================
-           DELETAR VENDA
-           ============================================================ */
-        async function deleteSale(id) {
-            if (!confirm('Remover esta venda?')) return
-            const { error } = await db.from('vendas').delete().eq('id', id)
-            if (error) { toast('Erro ao remover', true); return }
-            toast('Venda removida')
-            await loadAll()
+        function buildChartPlat(mlR, shR, outR) {
+            const data = [+mlR.toFixed(2), +shR.toFixed(2), +outR.toFixed(2)]
+            const total = mlR + shR + outR
+            const pct2 = v => total > 0 ? ((v / total) * 100).toFixed(0) + '%' : '0%'
+            if (cPlat) { cPlat.data.datasets[0].data = data; cPlat.update() }
+            else cPlat = new Chart(el('chartPlat'), {
+                type: 'doughnut',
+                data: { labels: ['ML', 'Shopee', 'Outros'], datasets: [{ data, backgroundColor: ['#ffe507', '#ee4d2d', '#6366f1'], borderWidth: 0, hoverOffset: 4 }] },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { display: false } } }
+            })
+            el('platLeg').innerHTML = [['#ffe507', 'ML', mlR], ['#ee4d2d', 'Shopee', shR], ['#6366f1', 'Outros', outR]].map(([c, n, v]) =>
+                `<div style="display:flex;align-items:center;gap:6px"><div style="width:9px;height:9px;border-radius:2px;background:${c}"></div><span style="color:var(--muted)">${n}</span><strong style="margin-left:auto">${pct2(v)}</strong></div>`
+            ).join('')
         }
 
-        /* ============================================================
-           HISTÓRICO
-           ============================================================ */
-        function renderHistory() {
-            const q = (document.getElementById('searchSale')?.value || '').toLowerCase()
-            let list = q ? allSales.filter(s => s.produto.toLowerCase().includes(q) || (s.observacao || '').toLowerCase().includes(q)) : allSales
-            if (!list.length) {
-                document.getElementById('histContent').innerHTML = '<div class="empty"><div class="empty-icon">📋</div><p>Nenhuma venda encontrada.</p></div>'
-                return
+        function buildChartTopProd(vendas) {
+            const mp = {}, mq = {}
+            vendas.forEach(v => { mp[v.produto_nome] = (mp[v.produto_nome] || 0) + Number(v.total); mq[v.produto_nome] = (mq[v.produto_nome] || 0) + v.quantidade })
+            const top5r = Object.entries(mp).sort((a, b) => b[1] - a[1]).slice(0, 5)
+            const top5q = Object.entries(mq).sort((a, b) => b[1] - a[1]).slice(0, 5)
+            const colors = ['#ffe507', '#ee4d2d', '#6366f1', '#22c55e', '#f97316']
+            const opts = {
+                responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } },
+                scales: { x: { grid: { color: 'rgba(0,0,0,.04)' }, ticks: { color: '#aaa', font: { size: 9 }, callback: v => 'R$' + v.toLocaleString('pt-BR') } }, y: { grid: { display: false }, ticks: { color: '#666', font: { size: 10 } } } }
             }
-            document.getElementById('histContent').innerHTML = `<div class="table-wrap"><table>
-    <thead><tr><th>Data</th><th>Plataforma</th><th>Produto</th><th>Qtd</th><th>Unit.</th><th>Total</th><th>Obs.</th><th></th></tr></thead>
-    <tbody>${list.map(s => `<tr>
-      <td>${dateLabel(s.data)}</td>
-      <td><span class="plat ${s.plataforma}">${s.plataforma === 'ml' ? '⭐ ML' : '🛒 Shopee'}</span></td>
-      <td><strong>${s.produto}</strong></td>
-      <td>${s.quantidade}</td>
-      <td>${fmtMoney(s.valor_unit)}</td>
-      <td style="font-weight:700;color:var(--green)">${fmtMoney(s.total)}</td>
-      <td style="color:var(--muted);font-size:12px">${s.observacao || '—'}</td>
-      <td><button class="del-btn" onclick="deleteSale(${s.id})">✕</button></td>
+            if (cTopProd) { cTopProd.data.labels = top5r.map(x => x[0].slice(0, 20)); cTopProd.data.datasets[0].data = top5r.map(x => +x[1].toFixed(2)); cTopProd.update() }
+            else cTopProd = new Chart(el('chartTopProd'), { type: 'bar', data: { labels: top5r.map(x => x[0].slice(0, 20)), datasets: [{ data: top5r.map(x => +x[1].toFixed(2)), backgroundColor: colors, borderRadius: 4 }] }, options: opts })
+            const opts2 = { ...opts, scales: { ...opts.scales, x: { ...opts.scales.x, ticks: { color: '#aaa', font: { size: 9 } } } } }
+            if (cQtdProd) { cQtdProd.data.labels = top5q.map(x => x[0].slice(0, 20)); cQtdProd.data.datasets[0].data = top5q.map(x => x[1]); cQtdProd.update() }
+            else cQtdProd = new Chart(el('chartQtdProd'), { type: 'bar', data: { labels: top5q.map(x => x[0].slice(0, 20)), datasets: [{ data: top5q.map(x => x[1]), backgroundColor: colors, borderRadius: 4 }] }, options: opts2 })
+        }
+
+        function buildRecentVendas() {
+            const list = allVendas.slice(0, 10)
+            if (!list.length) { el('recentVendas').innerHTML = '<div class="empty-state"><div class="empty-icon">💸</div><p>Nenhuma venda ainda.</p></div>'; return }
+            el('recentVendas').innerHTML = `<div class="tbl-wrap"><table>
+    <thead><tr><th>Data</th><th>Plataforma</th><th>Produto</th><th>Qtd</th><th>Bruto</th><th>Líquido</th></tr></thead>
+    <tbody>${list.map(v => `<tr>
+      <td>${dateLabel(v.data)}</td>
+      <td><span class="badge ${v.plataforma}">${platLabel(v.plataforma)}</span></td>
+      <td><strong>${v.produto_nome}</strong>${v.variacao_nome ? ` <span style="color:var(--muted);font-size:11px">(${v.variacao_nome})</span>` : ''}</td>
+      <td>${v.quantidade}</td>
+      <td>${R$(v.total)}</td>
+      <td style="font-weight:700;color:var(--green)">${R$(v.liquido)}</td>
     </tr>`).join('')}</tbody></table></div>`
         }
 
-        /* ============================================================
+        const platLabel = p => p === 'ml' ? '⭐ ML' : p === 'sh' ? '🛒 Shopee' : '🌐 Outros'
+
+        /* ================================================================
+           MODAL VENDA
+           ================================================================ */
+        let editVendaData = null
+
+        function openModalVenda(venda) {
+            editVendaData = venda
+            el('mvTitle').textContent = venda ? 'Editar Venda' : 'Nova Venda'
+            el('mvBtn').textContent = venda ? '💾 Salvar Alterações' : '💾 Salvar Venda'
+            el('mvData').value = venda?.data || todayISO()
+            el('mvTaxaTipo').value = venda?.taxa_tipo || 'ml_classico'
+            el('mvQtd').value = venda?.quantidade || 1
+            el('mvValUnit').value = venda?.valor_unit || ''
+            el('mvDesconto').value = venda?.desconto || 0
+            el('mvCustoFrete').value = venda?.custo_frete || 0
+            el('mvFreteGratis').checked = venda?.frete_gratis || false
+            el('mvObs').value = venda?.observacao || ''
+            el('mvPreview').style.display = 'none'
+            el('mvProdManualWrap').style.display = 'none'
+            el('mvVarWrap').style.display = 'none'
+            el('mvTaxaCustomWrap').style.display = venda?.taxa_tipo === 'custom' ? 'block' : 'none'
+            setVendaPlat(venda?.plataforma || 'ml')
+
+            // Select produto
+            if (venda?.produto_id) {
+                el('mvProdSel').value = venda.produto_id
+                loadVarsByProd(venda.produto_id, venda.variacao_id)
+            } else if (venda?.produto_nome) {
+                el('mvProdSel').value = '__manual'
+                el('mvProdManualWrap').style.display = 'block'
+                el('mvProdManual').value = venda.produto_nome
+            } else { el('mvProdSel').value = '' }
+
+            calcVendaLiq()
+            openModal('modalVenda')
+        }
+
+        function setVendaPlat(p) {
+            currentPlat = p
+                ;[['ml', 'mvML'], ['sh', 'mvSH'], ['outros', 'mvOUT']].forEach(([x, id]) => { const e = el(id); if (e) e.classList.toggle('on', x === p) })
+            // sync taxa tipo
+            const sel = el('mvTaxaTipo')
+            if (p === 'ml' && !sel.value.startsWith('ml')) sel.value = 'ml_classico'
+            if (p === 'sh' && !sel.value.startsWith('sh')) sel.value = 'sh_normal'
+            if (p === 'outros') sel.value = 'outros'
+            el('mvTaxaCustomWrap').style.display = sel.value === 'custom' ? 'block' : 'none'
+            calcVendaLiq()
+        }
+
+        el('mvTaxaTipo').addEventListener('change', () => {
+            el('mvTaxaCustomWrap').style.display = val('mvTaxaTipo') === 'custom' ? 'block' : 'none'
+            calcVendaLiq()
+        })
+
+        function onMvProdChange() {
+            const v = el('mvProdSel').value
+            el('mvProdManualWrap').style.display = v === '__manual' ? 'block' : 'none'
+            if (v && v !== '__manual') { loadVarsByProd(v, null) } else { el('mvVarWrap').style.display = 'none' }
+            // auto-fill preço
+            if (v && v !== '__manual') {
+                const p = allProdutos.find(x => x.id == v)
+                if (p && !el('mvValUnit').value) el('mvValUnit').value = p.preco_base
+                calcVendaLiq()
+            }
+        }
+
+        function loadVarsByProd(prodId, selVarId) {
+            const vars = allVars.filter(x => x.produto_id == prodId)
+            if (!vars.length) { el('mvVarWrap').style.display = 'none'; return }
+            el('mvVarWrap').style.display = 'block'
+            el('mvVarSel').innerHTML = '<option value="">— Sem variação específica —</option>' +
+                vars.map(v => `<option value="${v.id}">${v.nome} — ${R$(v.preco)}</option>`).join('')
+            if (selVarId) el('mvVarSel').value = selVarId
+        }
+
+        el('mvVarSel').addEventListener('change', () => {
+            const v = el('mvVarSel').value
+            if (v) { const vr = allVars.find(x => x.id == v); if (vr) { el('mvValUnit').value = vr.preco; calcVendaLiq() } }
+        })
+
+        function calcVendaLiq() {
+            const qtd = parseNum('mvQtd'), unit = parseNum('mvValUnit'), desc = parseNum('mvDesconto')
+            const frete = parseNum('mvCustoFrete')
+            const bruto = (qtd * unit) - desc
+            const tipo = val('mvTaxaTipo')
+            const tPct = tipo === 'custom' ? parseNum('mvTaxaCustom') / 100 : (TAXAS[tipo] || 0)
+            const taxaVal = bruto * tPct
+            const liq = bruto - taxaVal - frete
+            if (unit > 0) {
+                el('mvPreview').style.display = 'block'
+                el('mvBruto').textContent = R$(bruto)
+                el('mvTaxaVal').textContent = '-' + R$(taxaVal) + ' (' + pct(tPct * 100) + ')'
+                const freteRow = el('mvFreteRow')
+                if (frete > 0) {
+                    freteRow.style.display = 'flex'
+                    el('mvFreteVal').textContent = '-' + R$(frete)
+                } else { freteRow.style.display = 'none' }
+                el('mvLiq').textContent = R$(liq)
+                el('mvLiq').style.color = liq >= 0 ? 'var(--green)' : 'var(--red)'
+            } else { el('mvPreview').style.display = 'none' }
+        }
+
+        async function salvarVenda() {
+            const data = val('mvData'), qtd = parseNum('mvQtd'), unit = parseNum('mvValUnit')
+            const desc = parseNum('mvDesconto'), obs = val('mvObs'), tipo = val('mvTaxaTipo')
+            const prodSel = val('mvProdSel')
+            let prodNome = '', prodId = null, varId = null, varNome = ''
+
+            if (!data || !unit) { toast('Preencha data e valor', 'warn'); return }
+            if (qtd < 1) { toast('Quantidade inválida', 'warn'); return }
+
+            if (prodSel === '__manual') {
+                prodNome = val('mvProdManual')
+                if (!prodNome) { toast('Informe o nome do produto', 'warn'); return }
+            } else if (prodSel) {
+                prodId = parseInt(prodSel)
+                const p = allProdutos.find(x => x.id == prodId)
+                prodNome = p?.nome || ''
+                const varSel = val('mvVarSel')
+                if (varSel) { varId = parseInt(varSel); const vr = allVars.find(x => x.id == varId); varNome = vr?.nome || '' }
+            } else { toast('Selecione ou informe o produto', 'warn'); return }
+
+            const tPct = tipo === 'custom' ? parseNum('mvTaxaCustom') / 100 : (TAXAS[tipo] || 0)
+            const bruto = (qtd * unit) - desc
+            const taxaPlat = bruto * tPct
+            const custoFrete = parseNum('mvCustoFrete')
+            const freteGratis = el('mvFreteGratis').checked
+            const liquido = bruto - taxaPlat - custoFrete
+
+            const row = {
+                data, plataforma: currentPlat, taxa_tipo: tipo,
+                produto_id: prodId, variacao_id: varId,
+                produto_nome: prodNome, variacao_nome: varNome,
+                quantidade: qtd, valor_unit: unit, desconto: desc,
+                taxa_plat: +taxaPlat.toFixed(2), total: +bruto.toFixed(2),
+                liquido: +liquido.toFixed(2),
+                frete_gratis: freteGratis, custo_frete: +custoFrete.toFixed(2),
+                observacao: obs
+            }
+
+            el('mvBtn').disabled = true; el('mvBtn').textContent = 'Salvando…'
+            let err
+            if (editVendaData) { ({ error: err } = await db.from('vendas').update(row).eq('id', editVendaData.id)) }
+            else { ({ error: err } = await db.from('vendas').insert(row)) }
+            el('mvBtn').disabled = false; el('mvBtn').textContent = '💾 Salvar Venda'
+
+            if (err) { toast('Erro: ' + err.message, 'err'); return }
+            closeModal('modalVenda'); toast('Venda salva! ✓', 'ok'); loadAll()
+        }
+
+        async function excluirVenda(id) {
+            if (!confirm('Remover esta venda?')) return
+            const { error } = await db.from('vendas').delete().eq('id', id)
+            if (error) { toast('Erro ao remover', 'err'); return }
+            toast('Venda removida', 'ok'); loadAll()
+        }
+
+        /* ================================================================
+           TABELA VENDAS
+           ================================================================ */
+        function renderTabelaVendas() {
+            const q = (val('searchVenda') || '').toLowerCase()
+            const fp = val('filtPlat'), fm = val('filtMesVenda')
+            let list = allVendas.filter(v => {
+                if (fp && v.plataforma !== fp) return false
+                if (fm && v.data.slice(0, 7) !== fm) return false
+                if (q && !v.produto_nome.toLowerCase().includes(q) && !(v.observacao || '').toLowerCase().includes(q)) return false
+                return true
+            })
+            const total = list.reduce((a, x) => a + Number(x.total), 0)
+            const liq = list.reduce((a, x) => a + Number(x.liquido), 0)
+            el('vendaCount').innerHTML = `${list.length} venda(s) · Bruto: <strong>${R$(total)}</strong> · Líquido: <strong style="color:var(--green)">${R$(liq)}</strong>`
+            if (!list.length) { el('tabelaVendas').innerHTML = '<div class="empty-state"><div class="empty-icon">💸</div><p>Nenhuma venda encontrada.</p></div>'; return }
+            el('tabelaVendas').innerHTML = `<div class="tbl-wrap"><table>
+    <thead><tr><th>Data</th><th>Plataforma</th><th>Produto</th><th>Var.</th><th>Qtd</th><th>Unit.</th><th>Bruto</th><th>Taxa</th><th>Frete</th><th>Líquido</th><th>Obs.</th><th></th></tr></thead>
+    <tbody>${list.map(v => `<tr>
+      <td style="white-space:nowrap">${dateLabel(v.data)}</td>
+      <td><span class="badge ${v.plataforma}">${platLabel(v.plataforma)}</span></td>
+      <td><strong>${v.produto_nome}</strong></td>
+      <td style="color:var(--muted);font-size:11px">${v.variacao_nome || '—'}</td>
+      <td>${v.quantidade}</td>
+      <td>${R$(v.valor_unit)}</td>
+      <td>${R$(v.total)}</td>
+      <td style="color:var(--red);font-size:12px">-${R$(v.taxa_plat)}</td>
+      <td style="font-size:12px;white-space:nowrap">
+        ${v.frete_gratis ? '<span class="badge green" style="font-size:10px">🚚 Grátis</span>' : ''}
+        ${v.custo_frete > 0 ? `<span style="color:var(--red)">-${R$(v.custo_frete)}</span>` : ''}
+        ${!v.frete_gratis && !(v.custo_frete > 0) ? '<span style="color:var(--muted)">—</span>' : ''}
+      </td>
+      <td style="font-weight:700;color:var(--green)">${R$(v.liquido)}</td>
+      <td style="color:var(--muted);font-size:11px;max-width:100px;overflow:hidden;text-overflow:ellipsis">${v.observacao || '—'}</td>
+      <td style="white-space:nowrap">
+        <button class="icon-btn edit" onclick='openModalVenda(${JSON.stringify(v)})' title="Editar">✏️</button>
+        <button class="icon-btn del"  onclick="excluirVenda(${v.id})" title="Remover">🗑</button>
+      </td>
+    </tr>`).join('')}</tbody></table></div>`
+        }
+
+        /* ================================================================
+           MODAL PRODUTO
+           ================================================================ */
+        let varRows = []
+        let editProdData = null
+
+        function openModalProduto(prod) {
+            editProdData = prod
+            varRows = []
+            el('mpTitle').textContent = prod ? 'Editar Produto' : 'Novo Produto'
+            el('mpBtn').textContent = prod ? '💾 Salvar Alterações' : '💾 Salvar'
+            el('mpNome').value = prod?.nome || ''
+            el('mpPreco').value = prod?.preco_base || ''
+            el('mpCusto').value = prod?.custo_base || ''
+            el('mpEstoque').value = prod?.estoque || 0
+            el('mpDesc').value = prod?.descricao || ''
+            el('mpFreteGratis').checked = prod?.frete_gratis || false
+            el('mpMargemWrap').style.display = 'none'
+
+            // Carregar variações existentes
+            const vars = prod ? allVars.filter(v => v.produto_id === prod.id) : []
+            vars.forEach(v => addVarRow(v))
+            calcMpMargem()
+            openModal('modalProduto')
+        }
+
+        function calcMpMargem() {
+            const p = parseNum('mpPreco'), c = parseNum('mpCusto')
+            if (p > 0 && c > 0) {
+                const m = ((p - c) / p) * 100
+                el('mpMargem').textContent = m.toFixed(1) + '%'
+                el('mpMargemWrap').style.display = 'block'
+                el('mpMargemWrap').style.color = m < 10 ? 'var(--red)' : m < 25 ? 'var(--yellow)' : 'var(--green)'
+            } else { el('mpMargemWrap').style.display = 'none' }
+        }
+
+        el('mpPreco').addEventListener('input', calcMpMargem)
+
+        function addVarRow(data = null) {
+            const idx = varRows.length
+            const obj = { id: data?.id || null, nome: data?.nome || '', preco: data?.preco || '', custo: data?.custo || '', estoque: data?.estoque || 0 }
+            varRows.push(obj)
+            renderVarRows()
+        }
+
+        function renderVarRows() {
+            el('varRows').innerHTML = varRows.map((v, i) => `
+    <div class="var-item">
+      <input type="text"   placeholder="Nome (ex: Azul G)" value="${v.nome}"    oninput="varRows[${i}].nome=this.value" style="font-size:12px">
+      <input type="number" placeholder="Preço" value="${v.preco}"   oninput="varRows[${i}].preco=this.value" style="width:90px" class="sm">
+      <input type="number" placeholder="Custo" value="${v.custo}"   oninput="varRows[${i}].custo=this.value" style="width:80px" class="sm">
+      <input type="number" placeholder="Estq." value="${v.estoque}" oninput="varRows[${i}].estoque=this.value" style="width:70px" class="sm">
+      <button class="icon-btn del" onclick="removeVarRow(${i})">✕</button>
+    </div>`).join('')
+        }
+
+        function removeVarRow(i) { varRows.splice(i, 1); renderVarRows() }
+
+        async function salvarProduto() {
+            const nome = val('mpNome')
+            if (!nome) { toast('Informe o nome do produto', 'warn'); return }
+            el('mpBtn').disabled = true; el('mpBtn').textContent = 'Salvando…'
+
+            const row = {
+                nome, preco_base: parseNum('mpPreco') || 0, custo_base: parseNum('mpCusto') || 0,
+                estoque: parseInt(el('mpEstoque').value) || 0, descricao: val('mpDesc'),
+                frete_gratis: el('mpFreteGratis').checked
+            }
+            let prodId = editProdData?.id, err
+
+            if (editProdData) { ({ error: err } = await db.from('produtos').update(row).eq('id', prodId)) }
+            else { const r = await db.from('produtos').insert(row).select(); err = r.error; prodId = r.data?.[0]?.id }
+
+            if (err) { el('mpBtn').disabled = false; el('mpBtn').textContent = '💾 Salvar'; toast('Erro: ' + err.message, 'err'); return }
+
+            // Variações: delete antigas e re-insert
+            if (prodId) {
+                await db.from('produto_variacoes').delete().eq('produto_id', prodId)
+                const validVars = varRows.filter(v => v.nome.trim())
+                if (validVars.length) {
+                    await db.from('produto_variacoes').insert(validVars.map(v => ({
+                        produto_id: prodId, nome: v.nome.trim(),
+                        preco: parseFloat(v.preco) || 0, custo: parseFloat(v.custo) || 0, estoque: parseInt(v.estoque) || 0
+                    })))
+                }
+            }
+
+            el('mpBtn').disabled = false; el('mpBtn').textContent = '💾 Salvar'
+            closeModal('modalProduto'); toast('Produto salvo! ✓', 'ok'); loadAll()
+        }
+
+        async function excluirProduto(id) {
+            if (!confirm('Remover este produto e todas as suas variações?')) return
+            const { error } = await db.from('produtos').delete().eq('id', id)
+            if (error) { toast('Erro ao remover', 'err'); return }
+            toast('Produto removido', 'ok'); loadAll()
+        }
+
+        /* ================================================================
+           RENDER PRODUTOS
+           ================================================================ */
+        function renderProdutos() {
+            const q = (val('searchProd') || '').toLowerCase()
+            const fe = val('filtEstoque')
+            let list = allProdutos.filter(p => {
+                if (q && !p.nome.toLowerCase().includes(q)) return false
+                if (fe === 'zerado' && p.estoque !== 0) return false
+                if (fe === 'critico' && (p.estoque === 0 || p.estoque > 5)) return false
+                if (fe === 'ok' && p.estoque <= 5) return false
+                return p.ativo !== false
+            })
+            if (!list.length) { el('prodGrid').innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📦</div><p>Nenhum produto encontrado.</p></div>'; return }
+            el('prodGrid').innerHTML = list.map(p => {
+                const vars = allVars.filter(v => v.produto_id === p.id)
+                const margem = p.preco_base > 0 && p.custo_base > 0 ? ((p.preco_base - p.custo_base) / p.preco_base * 100).toFixed(0) : null
+                const ec = p.estoque === 0 ? 'var(--red)' : p.estoque <= 5 ? 'var(--yellow)' : 'var(--green)'
+                const bar = Math.min(100, p.estoque / 50 * 100)
+                return `<div class="prod-card">
+      <div class="prod-card-header">
+        <div>
+          <div class="prod-card-name">${p.nome}</div>
+          ${p.descricao ? `<div class="prod-card-sku" style="margin-top:3px">${p.descricao.slice(0, 60)}</div>` : ''}
+        </div>
+        <div style="display:flex;gap:4px;flex-shrink:0">
+          <button class="icon-btn edit" onclick='openModalProduto(${JSON.stringify(p).replace(/'/g, "&#39;")})' title="Editar">✏️</button>
+          <button class="icon-btn del"  onclick="excluirProduto(${p.id})" title="Remover">🗑</button>
+        </div>
+      </div>
+      <div class="prod-stats-row">
+        <div class="ps"><div class="ps-label">Preço</div><div class="ps-val" style="font-size:15px;color:var(--green)">${R$(p.preco_base)}</div></div>
+        <div class="ps"><div class="ps-label">Custo</div><div class="ps-val" style="font-size:15px;color:var(--red)">${R$(p.custo_base)}</div></div>
+        <div class="ps"><div class="ps-label">Margem</div><div class="ps-val" style="font-size:15px;color:var(--blue)">${margem !== null ? margem + '%' : '—'}</div></div>
+        <div class="ps"><div class="ps-label">Estoque</div><div class="ps-val" style="font-size:20px;color:${ec}">${p.estoque}</div></div>
+      </div>
+      ${p.frete_gratis ? '<div style="margin-top:8px"><span class="badge green">🚚 Frete grátis</span></div>' : ''}
+      <div class="stock-bar"><div class="stock-fill" style="width:${bar}%;background:${ec}"></div></div>
+      ${vars.length ? `<div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px">${vars.length} variação(ões)</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px">${vars.map(v => `<span class="badge green" style="font-size:10px">${v.nome} · ${R$(v.preco)} · Estq:${v.estoque}</span>`).join('')}</div>
+      </div>`: ''}
+    </div>`
+            }).join('')
+        }
+
+        /* ================================================================
+           POPULATE PROD SELECT (modal venda)
+           ================================================================ */
+        function populateProdSelect() {
+            const sel = el('mvProdSel')
+            const cur = sel.value
+            sel.innerHTML = '<option value="">— Selecionar produto —</option><option value="__manual">✏️ Digitar manualmente</option>'
+                + allProdutos.map(p => `<option value="${p.id}">${p.nome}${p.preco_base ? ` — ${R$(p.preco_base)}` : ''}</option>`).join('')
+            if (cur) sel.value = cur
+        }
+
+        /* ================================================================
+           MODAL CUSTO
+           ================================================================ */
+        let editCustoData = null
+
+        function openModalCusto(custo) {
+            editCustoData = custo
+            el('mcTitle').textContent = custo ? 'Editar Custo' : 'Novo Custo'
+            el('mcBtn').textContent = custo ? '💾 Salvar Alterações' : '💾 Salvar'
+            el('mcNome').value = custo?.nome || ''
+            el('mcCat').value = custo?.categoria || 'embalagem'
+            el('mcData').value = custo?.data || todayISO()
+            el('mcTemQtd').checked = custo ? custo.tem_qtd : true
+            el('mcQtd').value = custo?.quantidade || 1
+            el('mcTotal').value = custo?.valor_total || ''
+            el('mcTotalSemQtd').value = custo?.valor_total || ''
+            el('mcUnit').value = custo?.valor_unit ? Number(custo.valor_unit).toFixed(4).replace(/\.?0+$/, '') : ''
+            el('mcCalcHint').style.display = 'none'
+            el('mcObs').value = custo?.observacao || ''
+            el('mcRecorrente').checked = custo?.recorrente || false
+            toggleMcQtd()
+            calcMcUnit()
+            openModal('modalCusto')
+        }
+
+        function toggleMcQtd() {
+            const has = el('mcTemQtd').checked
+            el('mcQtdWrap').style.display = has ? 'grid' : 'none'
+            el('mcSemQtdWrap').style.display = has ? 'none' : 'block'
+        }
+
+        // origem: 'qtd' | 'unit' | 'total'
+        // Regra: dos 3 campos, calcula o que NÃO foi digitado agora
+        function calcMcUnit(origem) {
+            const q = parseFloat(el('mcQtd').value) || 0
+            const u = parseFloat(el('mcUnit').value) || 0
+            const t = parseFloat(el('mcTotal').value) || 0
+            el('mcCalcHint').style.display = 'block'
+
+            if (origem === 'total' && q > 0 && t > 0) {
+                // digitou total → calcula unitário
+                el('mcUnit').value = (t / q).toFixed(4).replace(/\.?0+$/, '')
+            } else if (origem === 'unit' && q > 0 && u > 0) {
+                // digitou unitário → calcula total
+                el('mcTotal').value = (u * q).toFixed(2)
+            } else if (origem === 'qtd') {
+                // mudou quantidade → recalcula o que fizer sentido
+                if (u > 0) {
+                    el('mcTotal').value = (u * q).toFixed(2)
+                } else if (t > 0 && q > 0) {
+                    el('mcUnit').value = (t / q).toFixed(4).replace(/\.?0+$/, '')
+                }
+            }
+        }
+
+        async function salvarCusto() {
+            const nome = val('mcNome'), data = val('mcData'), cat = val('mcCat')
+            if (!nome) { toast('Informe a descrição', 'warn'); return }
+            if (!data) { toast('Informe a data', 'warn'); return }
+            const temQtd = el('mcTemQtd').checked
+            const qtd = temQtd ? parseNum('mcQtd') : 1
+            const total = temQtd ? parseNum('mcTotal') : parseNum('mcTotalSemQtd')
+            if (!total) { toast('Informe o valor', 'warn'); return }
+            const unit = qtd > 0 ? total / qtd : total
+
+            const row = {
+                nome, data, categoria: cat, tem_qtd: temQtd, quantidade: qtd, valor_total: +total.toFixed(2),
+                valor_unit: +unit.toFixed(4), recorrente: el('mcRecorrente').checked, observacao: val('mcObs')
+            }
+            el('mcBtn').disabled = true; el('mcBtn').textContent = 'Salvando…'
+            let err
+            if (editCustoData) { ({ error: err } = await db.from('custos').update(row).eq('id', editCustoData.id)) }
+            else { ({ error: err } = await db.from('custos').insert(row)) }
+            el('mcBtn').disabled = false; el('mcBtn').textContent = '💾 Salvar'
+            if (err) { toast('Erro: ' + err.message, 'err'); return }
+            closeModal('modalCusto'); toast('Custo salvo! ✓', 'ok'); loadAll()
+        }
+
+        async function excluirCusto(id) {
+            if (!confirm('Remover este custo?')) return
+            const { error } = await db.from('custos').delete().eq('id', id)
+            if (error) { toast('Erro ao remover', 'err'); return }
+            toast('Custo removido', 'ok'); loadAll()
+        }
+
+        /* ================================================================
+           TABELA CUSTOS
+           ================================================================ */
+        function renderTabelaCustos() {
+            const q = (val('searchCusto') || '').toLowerCase()
+            const fc = val('filtCatCusto'), fm = val('filtMesCusto')
+            let list = allCustos.filter(c => {
+                if (fc && c.categoria !== fc) return false
+                if (fm && c.data.slice(0, 7) !== fm) return false
+                if (q && !c.nome.toLowerCase().includes(q)) return false
+                return true
+            })
+            if (!list.length) { el('tabelaCustos').innerHTML = '<div class="empty-state"><div class="empty-icon">💰</div><p>Nenhum custo encontrado.</p></div>'; return }
+            el('tabelaCustos').innerHTML = `<div class="tbl-wrap"><table>
+    <thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Qtd</th><th>Unit.</th><th>Total</th><th>Recorr.</th><th>Obs.</th><th></th></tr></thead>
+    <tbody>${list.map(c => `<tr>
+      <td style="white-space:nowrap">${dateLabel(c.data)}</td>
+      <td><strong>${c.nome}</strong></td>
+      <td><span class="cat-chip cat-${c.categoria}">${c.categoria}</span></td>
+      <td>${c.tem_qtd ? Number(c.quantidade).toLocaleString('pt-BR') : '—'}</td>
+      <td style="font-size:11px;color:var(--muted)">${c.tem_qtd && c.valor_unit ? R$(c.valor_unit) : '-'}</td>
+      <td style="font-weight:700;color:var(--red)">${R$(c.valor_total)}</td>
+      <td>${c.recorrente ? '<span class="badge yellow">🔄 Sim</span>' : '—'}</td>
+      <td style="color:var(--muted);font-size:11px">${c.observacao || '—'}</td>
+      <td style="white-space:nowrap">
+        <button class="icon-btn edit" onclick='openModalCusto(${JSON.stringify(c).replace(/'/g, "&#39;")})' title="Editar">✏️</button>
+        <button class="icon-btn del"  onclick="excluirCusto(${c.id})" title="Remover">🗑</button>
+      </td>
+    </tr>`).join('')}</tbody></table></div>`
+        }
+
+        function updateKpiCustos() {
+            const now = new Date(); const mesAtual = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+            const mes = allCustos.filter(c => c.data.slice(0, 7) === mesAtual)
+            const sum = cat => mes.filter(c => c.categoria === cat).reduce((a, c) => a + Number(c.valor_total), 0)
+            const totalMes = mes.reduce((a, c) => a + Number(c.valor_total), 0)
+            el('ck-mes').textContent = R$(totalMes)
+            const emb = allCustos.filter(c => c.categoria === 'embalagem')
+            const eti = allCustos.filter(c => c.categoria === 'etiqueta')
+            el('ck-emb').textContent = R$(sum('embalagem'))
+            el('ck-eti').textContent = R$(sum('etiqueta'))
+            el('ck-mkt').textContent = R$(sum('marketing'))
+            el('ck-fret').textContent = R$(sum('frete'))
+            el('ck-fix').textContent = R$(sum('fixo'))
+            // unit info
+            const lastEmb = emb.filter(c => c.tem_qtd).sort((a, b) => new Date(b.data) - new Date(a.data))[0]
+            const lastEti = eti.filter(c => c.tem_qtd).sort((a, b) => new Date(b.data) - new Date(a.data))[0]
+            el('ck-emb-s').textContent = lastEmb ? `Ult. unit: ${R$(lastEmb.valor_unit)}` : ''
+            el('ck-eti-s').textContent = lastEti ? `Ult. unit: ${R$(lastEti.valor_unit)}` : ''
+        }
+
+        /* ================================================================
+           FINANCEIRO
+           ================================================================ */
+        function changeFinMes(delta) {
+            finMes.setMonth(finMes.getMonth() + delta)
+            updateFinMesLabel()
+            renderFinanceiro()
+        }
+
+        function updateFinMesLabel() {
+            const lbl = finMes.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+            el('finMesLabel').textContent = lbl
+            el('finMesNome').textContent = lbl
+        }
+
+        function renderFinanceiro() {
+            const ym = `${finMes.getFullYear()}-${String(finMes.getMonth() + 1).padStart(2, '0')}`
+            const vendas = allVendas.filter(v => v.data.slice(0, 7) === ym)
+            const custos = allCustos.filter(c => c.data.slice(0, 7) === ym)
+
+            const bruto = vendas.reduce((a, v) => a + Number(v.total), 0)
+            const taxas = vendas.reduce((a, v) => a + Number(v.taxa_plat), 0)
+            const liqVend = vendas.reduce((a, v) => a + Number(v.liquido), 0)
+            const totalCust = custos.reduce((a, c) => a + Number(c.valor_total), 0)
+            const lucro = liqVend - totalCust
+            const margem = bruto > 0 ? (lucro / bruto) * 100 : 0
+
+            el('f-bruto').textContent = R$(bruto)
+            el('f-taxas').textContent = R$(taxas)
+            el('f-liq').textContent = R$(liqVend)
+            el('f-custos').textContent = R$(totalCust)
+            el('f-lucro').textContent = R$(lucro)
+            el('f-lucro').className = 'kpi-val ' + (lucro >= 0 ? 'green' : 'red')
+            el('f-lucro-s').textContent = lucro >= 0 ? '✅ Lucro' : '⚠️ Prejuízo'
+            el('f-margem').textContent = pct(margem)
+            el('f-margem').className = 'kpi-val ' + (margem >= 15 ? 'green' : margem >= 0 ? 'yellow' : 'red')
+
+            // DRE
+            const custByCat = {}
+            custos.forEach(c => { custByCat[c.categoria] = (custByCat[c.categoria] || 0) + Number(c.valor_total) })
+            const dreRows = [
+                { label: '(+) Receita bruta de vendas', val: bruto, bold: false, color: '' },
+                { label: '(-) Taxas das plataformas (ML/Shopee)', val: -taxas, bold: false, color: 'red' },
+                { label: '(=) Receita líquida de vendas', val: liqVend, bold: true, color: 'green' },
+                { label: 'Custos operacionais:', val: null },
+                ...Object.entries(custByCat).map(([k, v]) => ({ label: `  · ${k.charAt(0).toUpperCase() + k.slice(1)}`, val: -v, color: 'red' })),
+                { label: '(-) Total de custos', val: -totalCust, bold: true, color: 'red' },
+                { label: '(=) LUCRO LÍQUIDO', val: lucro, bold: true, color: lucro >= 0 ? 'green' : 'red', total: true },
+            ]
+            el('finDREContent').innerHTML = dreRows.map(r =>
+                r.val === null ? `<div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:10px 0 4px">${r.label}</div>`
+                    : `<div class="fin-row ${r.bold ? 'bold' : ''} ${r.total ? 'total' : ''}" style="${r.bold ? '' : ''}">
+        <span>${r.label}</span>
+        <span style="color:${r.color === 'green' ? 'var(--green)' : r.color === 'red' ? 'var(--red)' : ''}">${R$(Math.abs(r.val || 0))}${r.val < 0 ? ' ↓' : r.val > 0 ? ' ↑' : ''}</span>
+      </div>`
+            ).join('')
+
+            // Distribuição
+            if (lucro > 0) {
+                const reinv = lucro * 0.7, caixa = lucro * 0.2, reserva = lucro * 0.1
+                el('finDistContent').innerHTML = `
+      <div style="margin-bottom:12px;font-size:13px;color:var(--muted)">
+        Com base no lucro líquido de <strong style="color:var(--green)">${R$(lucro)}</strong>:
+      </div>
+      <div class="dist-bar">
+        <div class="dist-seg" style="width:70%;background:#22c55e"></div>
+        <div class="dist-seg" style="width:20%;background:#3b82f6"></div>
+        <div class="dist-seg" style="width:10%;background:#f59e0b"></div>
+      </div>
+      <div class="dist-legend">
+        <div class="dl-item"><div class="dl-dot" style="background:#22c55e"></div><span>🔄 Reinvestimento (70%)</span><strong style="margin-left:4px">${R$(reinv)}</strong></div>
+        <div class="dl-item"><div class="dl-dot" style="background:#3b82f6"></div><span>💵 Caixa pessoal (20%)</span><strong style="margin-left:4px">${R$(caixa)}</strong></div>
+        <div class="dl-item"><div class="dl-dot" style="background:#f59e0b"></div><span>🛡️ Reserva emergência (10%)</span><strong style="margin-left:4px">${R$(reserva)}</strong></div>
+      </div>
+    `
+            } else {
+                el('finDistContent').innerHTML = `<div style="color:var(--muted);font-size:13px;padding:8px 0">${lucro < 0 ? '⚠️ Mês com prejuízo — analise os custos e receitas.' : 'Sem lucro registrado neste mês.'}</div>`
+            }
+
+            buildChartFinMeses()
+            buildChartCustoCat()
+        }
+
+        function buildChartFinMeses() {
+            const meses = [], fat = [], cust = []
+            for (let i = 5; i >= 0; i--) {
+                const d = new Date(finMes); d.setMonth(d.getMonth() - i)
+                const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+                meses.push(d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }))
+                fat.push(+allVendas.filter(v => v.data.slice(0, 7) === ym).reduce((a, v) => a + Number(v.liquido), 0).toFixed(2))
+                cust.push(+allCustos.filter(c => c.data.slice(0, 7) === ym).reduce((a, c) => a + Number(c.valor_total), 0).toFixed(2))
+            }
+            if (cFinMeses) { cFinMeses.data.labels = meses; cFinMeses.data.datasets[0].data = fat; cFinMeses.data.datasets[1].data = cust; cFinMeses.update(); return }
+            cFinMeses = new Chart(el('chartFinMeses'), {
+                type: 'bar',
+                data: {
+                    labels: meses, datasets: [
+                        { label: 'Receita líquida', data: fat, backgroundColor: 'rgba(34,197,94,.8)', borderRadius: 5, stack: 'g' },
+                        { label: 'Custos', data: cust, backgroundColor: 'rgba(239,68,68,.7)', borderRadius: 5, stack: 'g' }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { font: { size: 11 }, color: '#888' } } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#aaa', font: { size: 10 } } },
+                        y: { grid: { color: 'rgba(0,0,0,.05)' }, ticks: { color: '#aaa', font: { size: 10 }, callback: v => 'R$' + v.toLocaleString('pt-BR') } }
+                    }
+                }
+            })
+        }
+
+        function buildChartCustoCat() {
+            const ym = `${finMes.getFullYear()}-${String(finMes.getMonth() + 1).padStart(2, '0')}`
+            const custos = allCustos.filter(c => c.data.slice(0, 7) === ym)
+            const byCat = {}
+            custos.forEach(c => { byCat[c.categoria] = (byCat[c.categoria] || 0) + Number(c.valor_total) })
+            const entries = Object.entries(byCat).filter(([, v]) => v > 0)
+            if (!entries.length) { if (cCustoCat) { cCustoCat.data.datasets[0].data = []; cCustoCat.update() } return }
+            const total = entries.reduce((a, [, v]) => a + v, 0)
+            const labels = entries.map(([k]) => k), data = entries.map(([, v]) => +v.toFixed(2)), colors = labels.map(k => CAT_COLORS[k] || '#999')
+            if (cCustoCat) { cCustoCat.data.labels = labels; cCustoCat.data.datasets[0].data = data; cCustoCat.data.datasets[0].backgroundColor = colors; cCustoCat.update() }
+            else cCustoCat = new Chart(el('chartCustoCat'), {
+                type: 'doughnut',
+                data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 0, hoverOffset: 4 }] },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { display: false } } }
+            })
+            const p2 = v => total > 0 ? ((v / total) * 100).toFixed(0) + '%' : '0%'
+            el('custoCatLeg').innerHTML = entries.map(([k, v]) => `
+    <div style="display:flex;align-items:center;gap:6px">
+      <div style="width:9px;height:9px;border-radius:2px;background:${CAT_COLORS[k] || '#999'}"></div>
+      <span style="color:var(--muted)">${k}</span>
+      <strong style="margin-left:auto">${R$(v)}</strong>
+      <span style="color:var(--muted);font-size:11px">${p2(v)}</span>
+    </div>`).join('')
+        }
+
+        /* ================================================================
            EXPORT CSV
-           ============================================================ */
+           ================================================================ */
         function exportCSV() {
-            if (!allSales.length) { toast('Nenhuma venda para exportar'); return }
-            const rows = [['Data', 'Plataforma', 'Produto', 'Qtd', 'Valor Unit.', 'Total', 'Observacao']]
-            allSales.forEach(s => rows.push([s.data, s.plataforma === 'ml' ? 'Mercado Livre' : 'Shopee', s.produto, s.quantidade, s.valor_unit, s.total, s.observacao]))
-            const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n')
+            if (!allVendas.length) { toast('Nenhuma venda para exportar', 'warn'); return }
+            const rows = [['Data', 'Plataforma', 'Produto', 'Variação', 'Qtd', 'Valor Unit.', 'Desconto', 'Bruto', 'Taxa', 'Líquido', 'Obs.']]
+            allVendas.forEach(v => rows.push([v.data, v.plataforma, v.produto_nome, v.variacao_nome || '', v.quantidade, v.valor_unit, v.desconto || 0, v.total, v.taxa_plat, v.liquido, v.observacao || '']))
+            const csv = rows.map(r => r.map(x => '"' + String(x).replace(/"/g, '""') + '"').join(',')).join('\n')
             const a = document.createElement('a')
             a.href = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv)
-            a.download = 'vendas_' + todayStr() + '.csv'; a.click()
-            toast('✓ CSV exportado!')
+            a.download = 'vendas_' + new Date().toISOString().slice(0, 10) + '.csv'; a.click()
+            toast('CSV exportado! ✓', 'ok')
         }
 
-        /* ============================================================
-           PRODUTOS
-           ============================================================ */
-        async function addProduct() {
-            const nome = document.getElementById('pNome').value.trim()
-            const preco = parseFloat(document.getElementById('pPreco').value) || 0
-            const custo = parseFloat(document.getElementById('pCusto').value) || 0
-            const estoque = parseInt(document.getElementById('pEstoque').value) || 0
-            if (!nome) { toast('⚠️ Informe o nome', true); return }
+        /* ================================================================
+           MODAL UTILS
+           ================================================================ */
+        function openModal(id) { el(id).classList.add('open') }
+        function closeModal(id) { el(id).classList.remove('open') }
+        document.querySelectorAll('.modal-backdrop').forEach(m => {
+            m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open') })
+        })
+        document.querySelectorAll('.modal').forEach(m => {
+            m.addEventListener('click', e => e.stopPropagation())
+        })
 
-            const { error } = await db.from('produtos').insert({ nome, preco, custo, estoque })
-            if (error) { toast('Erro: ' + error.message, true); return }
+        /* ================================================================
+           CALCULADORA DE PREÇOS
+           ================================================================ */
+        const CALC_TAXAS = { ml_classico: 0.16, ml_premium: 0.19, sh_normal: 0.20, sh_ads: 0.23, outros: 0, custom: 0 }
+        const PLATS_CALC = [
+            { key: 'ml_classico', label: 'ML Clássico', taxa: 0.16 },
+            { key: 'ml_premium', label: 'ML Premium', taxa: 0.19 },
+            { key: 'sh_normal', label: 'Shopee Normal', taxa: 0.20 },
+            { key: 'sh_ads', label: 'Shopee +Ads', taxa: 0.23 },
+        ]
 
-            document.getElementById('pNome').value = ''
-            document.getElementById('pPreco').value = ''
-            document.getElementById('pCusto').value = ''
-            document.getElementById('pEstoque').value = '0'
-            document.getElementById('addProdForm').style.display = 'none'
-            toast('✓ Produto salvo!')
-            await loadAll()
-        }
-
-        async function deleteProduct(id) {
-            if (!confirm('Remover este produto?')) return
-            const { error } = await db.from('produtos').delete().eq('id', id)
-            if (error) { toast('Erro ao remover', true); return }
-            toast('Produto removido')
-            await loadAll()
-        }
-
-        function renderProducts() {
-            if (!allProducts.length) {
-                document.getElementById('prodContent').innerHTML = '<div class="empty"><div class="empty-icon">📦</div><p>Nenhum produto cadastrado ainda.</p></div>'
-                return
-            }
-            document.getElementById('prodContent').innerHTML = `<div class="prod-list">${allProducts.map(p => {
-                const margem = p.preco > 0 && p.custo > 0 ? (((p.preco - p.custo) / p.preco) * 100).toFixed(0) + '%' : '—'
-                const ec = p.estoque === 0 ? 'var(--red)' : p.estoque <= 5 ? '#d97706' : 'var(--green)'
-                return `<div class="prod-item">
-      <div style="flex:1"><div style="font-weight:700">${p.nome}</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:2px">Custo: ${p.custo > 0 ? fmtMoney(p.custo) : '—'} · Margem: ${margem}</div>
-      </div>
-      <div style="text-align:right;margin-right:20px">
-        <div style="font-size:11px;color:var(--muted)">Estoque</div>
-        <div style="font-size:20px;font-weight:800;color:${ec}">${p.estoque}</div>
-      </div>
-      <div style="font-size:18px;font-weight:800;color:var(--green);min-width:100px;text-align:right">${p.preco > 0 ? fmtMoney(p.preco) : '—'}</div>
-      <button class="del-btn" onclick="deleteProduct(${p.id})">✕</button>
-    </div>`
-            }).join('')}</div>`
-        }
-
-        function updateProdSuggestions() {
-            const names = [...new Set([...allSales.map(s => s.produto), ...allProducts.map(p => p.nome)])]
-            document.getElementById('prodSuggestions').innerHTML = names.map(n => `<option value="${n}">`).join('')
-        }
-
-        /* ============================================================
-           PRECIFICAÇÃO
-           ============================================================ */
-        function updateFees() {
-            const plat = document.getElementById('cPlat').value
-            const taxa = { ml_classico: 16, ml_premium: 19, sh: 20 }
-            if (plat !== 'custom') document.getElementById('cTaxa').value = taxa[plat]
+        function updateCalcFees() {
+            const p = el('cPlat').value
+            if (p !== 'custom') el('cTaxa').value = (CALC_TAXAS[p] * 100).toFixed(1).replace(/\.0$/, '')
+            el('cTaxa').readOnly = p !== 'custom'
+            el('cTaxa').style.opacity = p !== 'custom' ? '0.6' : '1'
             calcPrice()
         }
 
         function calcPrice() {
-            const custo = parseFloat(document.getElementById('cCusto').value) || 0
-            const embal = parseFloat(document.getElementById('cEmbal').value) || 0
-            const frete = parseFloat(document.getElementById('cFrete').value) || 0
-            const lucroP = parseFloat(document.getElementById('cLucro').value) || 0
-            const taxaP = parseFloat(document.getElementById('cTaxa').value) || 0
-            const impP = parseFloat(document.getElementById('cImposto').value) || 0
-            const outros = parseFloat(document.getElementById('cOutros').value) || 0
-            if (!custo) { document.getElementById('calcResult').innerHTML = '<div style="color:var(--muted);font-size:14px">Informe o custo do produto para calcular.</div>'; return }
+            const custo = parseFloat(el('cCusto')?.value) || 0
+            const embal = parseFloat(el('cEmbal')?.value) || 0
+            const frete = parseFloat(el('cFrete')?.value) || 0
+            const outros = parseFloat(el('cOutros')?.value) || 0
+            const lucroP = parseFloat(el('cLucro')?.value) || 0
+            const taxaP = parseFloat(el('cTaxa')?.value) || 0
+            const impP = parseFloat(el('cImposto')?.value) || 0
+            const precoF = parseFloat(el('cPrecoForce')?.value) || 0
+
+            if (!custo) {
+                el('calcResult').innerHTML = '<div style="color:var(--muted);font-size:13px">Informe o custo do produto para calcular.</div>'
+                el('calcComparativo').innerHTML = '<div style="color:var(--muted);font-size:13px">Preencha o custo para ver a comparação.</div>'
+                return
+            }
 
             const custoTotal = custo + embal + frete + outros
             const divisor = 1 - (taxaP / 100) - (impP / 100)
-            const precoMin = divisor > 0 ? custoTotal / divisor : custoTotal
-            const precoFinal = divisor > 0 ? (custoTotal * (1 + lucroP / 100)) / divisor : custoTotal * (1 + lucroP / 100)
+
+            let precoFinal, modoForce = false
+            if (precoF > 0) {
+                precoFinal = precoF; modoForce = true
+            } else {
+                precoFinal = divisor > 0 ? (custoTotal * (1 + lucroP / 100)) / divisor : custoTotal * (1 + lucroP / 100)
+            }
+
             const taxaVal = precoFinal * (taxaP / 100)
             const impVal = precoFinal * (impP / 100)
+            const precoMin = divisor > 0 ? custoTotal / divisor : custoTotal
             const lucroVal = precoFinal - custoTotal - taxaVal - impVal
             const margemReal = precoFinal > 0 ? (lucroVal / precoFinal) * 100 : 0
+            const lucroBom = lucroVal >= 0
 
-            document.getElementById('calcResult').innerHTML = `
-    <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:10px">Resultado</div>
-    <div class="calc-row"><span>Custo total (produto + embal + frete + outros)</span><span class="red">${fmtMoney(custoTotal)}</span></div>
-    <div class="calc-row"><span>Taxa da plataforma (${taxaP}%)</span><span class="red">${fmtMoney(taxaVal)}</span></div>
-    ${impP > 0 ? `<div class="calc-row"><span>Imposto (${impP}%)</span><span class="red">${fmtMoney(impVal)}</span></div>` : ''}
-    <div class="calc-row" style="background:#f0fdf4;border-radius:8px;padding:8px 10px;margin-top:4px"><span>💚 Lucro estimado</span><span class="green" style="font-size:16px">${fmtMoney(lucroVal)} (${margemReal.toFixed(1)}%)</span></div>
-    <div class="calc-row" style="margin-top:12px;font-size:17px;font-weight:800"><span>🏷️ Preço de venda sugerido</span><span style="color:var(--green);font-size:22px">${fmtMoney(precoFinal)}</span></div>
-    <div class="calc-row" style="border-bottom:none"><span style="color:var(--muted);font-size:12px">Preço mínimo sem prejuízo</span><span style="color:var(--muted)">${fmtMoney(precoMin)}</span></div>`
+            const row = (label, val, color = '') => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+      <span style="color:var(--muted)">${label}</span>
+      <span style="font-weight:600;color:${color || 'var(--text)'}">${val}</span>
+    </div>`
+
+            el('calcResult').innerHTML = `
+    ${row('Custo total (produto + embal + frete + outros)', R$(custoTotal), 'var(--red)')}
+    ${row(`Taxa da plataforma (${taxaP}%)`, '-' + R$(taxaVal), 'var(--red)')}
+    ${impP > 0 ? row(`Imposto (${impP}%)`, '-' + R$(impVal), 'var(--red)') : ''}
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;margin:10px 0;border-radius:10px;background:${lucroBom ? 'var(--green-bg)' : 'var(--red-bg)'}">
+      <span style="font-size:13px;font-weight:700">${lucroBom ? '✅' : '⚠️'} Lucro estimado</span>
+      <span style="font-size:17px;font-weight:800;color:${lucroBom ? 'var(--green)' : 'var(--red)'}">${R$(lucroVal)} <span style="font-size:12px">(${margemReal.toFixed(1)}%)</span></span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;font-weight:800;font-size:15px">
+      <span>🏷️ ${modoForce ? 'Preço informado' : 'Preço sugerido'}</span>
+      <span style="font-size:26px;font-weight:900;color:${lucroBom ? 'var(--green)' : 'var(--red)'}">${R$(precoFinal)}</span>
+    </div>
+    ${!modoForce ? `<div style="font-size:11px;color:var(--muted);text-align:right;margin-top:-8px">Mínimo sem prejuízo: ${R$(precoMin)}</div>` : ''}
+    ${modoForce ? `<div style="font-size:11px;color:var(--muted);text-align:right;margin-top:-8px">Para ${lucroP}% de margem você precisaria de ${R$(divisor > 0 ? (custoTotal * (1 + lucroP / 100)) / divisor : 0)}</div>` : ''}
+  `
+
+            // Comparativo
+            el('calcComparativo').innerHTML = `<div class="tbl-wrap"><table>
+    <thead><tr>
+      <th>Plataforma</th><th>Taxa</th><th>Preço sugerido</th><th>Taxa (R$)</th><th>Lucro (R$)</th><th>Margem</th>
+    </tr></thead>
+    <tbody>${PLATS_CALC.map(p => {
+                const div = 1 - (p.taxa) - (impP / 100)
+                const preco = div > 0 ? (custoTotal * (1 + lucroP / 100)) / div : custoTotal * (1 + lucroP / 100)
+                const tv = preco * p.taxa, lv = preco - custoTotal - tv - (preco * (impP / 100))
+                const mg = preco > 0 ? (lv / preco) * 100 : 0
+                const isAtual = el('cPlat').value === p.key
+                return `<tr style="${isAtual ? 'background:#fafff5;font-weight:600' : ''}">
+        <td>${isAtual ? '→ ' : ''}<strong>${p.label}</strong></td>
+        <td>${(p.taxa * 100).toFixed(0)}%</td>
+        <td style="font-weight:800;color:var(--green);font-size:15px">${R$(preco)}</td>
+        <td style="color:var(--red)">-${R$(tv)}</td>
+        <td style="color:${lv >= 0 ? 'var(--green)' : 'var(--red)'};font-weight:700">${R$(lv)}</td>
+        <td style="color:${mg >= 20 ? 'var(--green)' : mg >= 10 ? 'var(--yellow)' : 'var(--red)'}">${mg.toFixed(1)}%</td>
+      </tr>`
+            }).join('')}</tbody></table></div>`
         }
 
-        /* ============================================================
-           NAV
-           ============================================================ */
-        function showPage(id, btn) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'))
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
-            document.getElementById('page-' + id).classList.add('active')
-            btn.classList.add('active')
-        }
-
-        /* ============================================================
-           INIT
-           ============================================================ */
-        document.getElementById('inData').value = todayStr()
-        document.getElementById('navDate').textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' })
-        loadAll()
-        // Atualiza dados a cada 60 segundos (caso use em outro dispositivo)
-        setInterval(loadAll, 60000)
+        /* ================================================================
+           START
+           ================================================================ */
+        init()
     </script>
 </body>
 
